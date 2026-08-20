@@ -10,8 +10,7 @@ public class Bob {
     private static final String GREEN = "\u001B[32m";
     private static final String RESET = "\u001B[0m";
 
-    private static String[] list = new String[100];
-    private static boolean[] isDone = new boolean[100];
+    private static Task[] tasks = new Task[100];
     private static int currListLen = 0;
     /**
      * Displays Bob's welcome banner and responds to commands until the user says bye.
@@ -57,7 +56,7 @@ public class Bob {
     }
 
     private static void addTask(String command) {
-        list[currListLen] = command;
+        tasks[currListLen] = new Task(command);
         currListLen++;
         System.out.println(BLUE + "Added: " + GREEN + command + RESET);
         return;
@@ -79,8 +78,7 @@ public class Bob {
         System.out.println(BLUE + "Here are the tasks in your list:" + RESET);
 
         for (int i = 0; i < currListLen; i++) {
-            String mark = isDone[i] ? "[X] " : "[ ] ";
-            System.out.println(GREEN + (i+1) + ". " + mark + " " + list[i] + RESET);
+            System.out.println(GREEN + (i + 1) + ". " + tasks[i] + RESET);
         }
     }
 
@@ -97,9 +95,10 @@ public class Bob {
                 System.out.println(BLUE + "Invalid task number." + RESET);
                 return;
             }
-            isDone[taskNumber - 1] = true;
+            Task task = tasks[taskNumber - 1];
+            task.markAsDone();
             System.out.println(BLUE + "I marked this task as done:" + RESET);
-            System.out.println(GREEN + "[X] " + list[taskNumber - 1] + RESET);
+            System.out.println(GREEN + task + RESET);
         } catch (NumberFormatException e) {
             System.out.println(BLUE + "Invalid task number format." + RESET);
         }
@@ -123,9 +122,10 @@ public class Bob {
                 System.out.println(BLUE + "Invalid task number." + RESET);
                 return;
             }
-            isDone[taskNumber - 1] = false;
+            Task task = tasks[taskNumber - 1];
+            task.markAsNotDone();
             System.out.println(BLUE + "I marked this task as not done:" + RESET);
-            System.out.println(GREEN + "[ ] " + list[taskNumber - 1] + RESET);
+            System.out.println(GREEN + task + RESET);
         } catch (NumberFormatException e) {
             System.out.println(BLUE + "Invalid task number format." + RESET);
         }
