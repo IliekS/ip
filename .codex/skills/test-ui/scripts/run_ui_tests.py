@@ -121,7 +121,7 @@ def run_test_case(
         capture_output=True,
         check=False,
     )
-    actual_output = normalise_output(result.stdout)
+    actual_output = normalise_output(result.stdout + result.stderr)
 
     print("\nTest case: " + test_case.name)
     print("Aim: " + test_case.aim)

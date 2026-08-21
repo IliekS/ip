@@ -57,7 +57,7 @@ public class Bob {
         } else if (command.startsWith("event ")) {
             createEvent(command);
         } else {
-            addTask(new Todo(command));
+            System.out.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
         }
     }
 
@@ -90,7 +90,7 @@ public class Bob {
      */
     private static void createDeadline(String command) {
         int byIndex = command.indexOf(" /by ");
-        if (byIndex < 0) {
+        if (byIndex <= "deadline ".length()) {
             System.out.println(BLUE + "Invalid command format. Use: deadline <description> /by <deadline>" + RESET);
             return;
         }
@@ -111,7 +111,7 @@ public class Bob {
     private static void createEvent(String command) {
         int fromIndex = command.indexOf(" /from ");
         int toIndex = command.indexOf(" /to ");
-        if (fromIndex < 0 || toIndex < fromIndex) {
+        if (fromIndex <= "event ".length() || toIndex < fromIndex) {
             System.out.println(BLUE + "Invalid command format. Use: event <description> /from <start> /to <end>" + RESET);
             return;
         }

@@ -79,3 +79,144 @@ ____________________________________________________________
 Bye. Hope to see you again soon!
 ____________________________________________________________
 ```
+
+## Test case: Reject invalid commands without changing saved tasks
+Aim: Verify that invalid deadline, event, mark, and unmark commands do not add tasks or change the completion state of existing tasks.
+
+Input:
+```text
+todo first task
+deadline missing date
+list
+event meeting /from 2pm
+todo second task
+mark 3
+mark 2
+unmark nope
+list
+bye
+```
+
+Expected output:
+```text
+ ____        _     
+| __ )  ___ | |__  
+|  _ \ / _ \| '_ \ 
+| |_) | (_) | |_) |
+|____/ \___/|_.__/ 
+
+Hello! I'm Bob.
+What can I do for you?
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[T][ ] first task
+Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: deadline <description> /by <deadline>
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the tasks in your list:
+1.[T][ ] first task
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: event <description> /from <start> /to <end>
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[T][ ] second task
+Now you have 2 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid task number.
+____________________________________________________________
+
+____________________________________________________________
+
+I marked this task as done:
+[T][X] second task
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid task number format.
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the tasks in your list:
+1.[T][ ] first task
+2.[T][X] second task
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Test case: Reject tasks without a description
+Aim: Verify that malformed deadline and event commands do not terminate Bob and that a subsequent valid task can still be added and listed.
+
+Input:
+```text
+deadline /by Sunday
+event /from 2pm /to 4pm
+todo valid task
+list
+bye
+```
+
+Expected output:
+```text
+ ____        _     
+| __ )  ___ | |__  
+|  _ \ / _ \| '_ \ 
+| |_) | (_) | |_) |
+|____/ \___/|_.__/ 
+
+Hello! I'm Bob.
+What can I do for you?
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: deadline <description> /by <deadline>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: event <description> /from <start> /to <end>
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[T][ ] valid task
+Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the tasks in your list:
+1.[T][ ] valid task
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
