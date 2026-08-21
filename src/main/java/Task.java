@@ -1,7 +1,7 @@
 /**
  * Represents a task stored by Bob.
  */
-public class Task {
+public abstract class Task {
     /** The description entered for this task. */
     private final String description;
 

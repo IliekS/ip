@@ -50,16 +50,79 @@ public class Bob {
             mark(command);
         } else if (command.startsWith("unmark ")) {
             unmark(command);
+        } else if (command.startsWith("todo ")) {
+            createTodo(command);
+        } else if (command.startsWith("deadline ")) {
+            createDeadline(command);
+        } else if (command.startsWith("event ")) {
+            createEvent(command);
         } else {
-            addTask(command);
+            addTask(new Todo(command));
         }
     }
 
-    private static void addTask(String command) {
-        tasks[currListLen] = new Task(command);
+    private static void addTask(Task task) {
+        tasks[currListLen] = task;
         currListLen++;
-        System.out.println(BLUE + "Added: " + GREEN + command + RESET);
-        return;
+        System.out.println(BLUE + "Got it. I've added this task:" + RESET);
+        System.out.println(GREEN + task + RESET);
+        System.out.println(BLUE + "Now you have " + currListLen + " tasks in the list." + RESET);
+    }
+
+    /**
+     * Adds a to-do task from a todo command.
+     *
+     * @param command the user's todo command
+     */
+    private static void createTodo(String command) {
+        String description = command.substring("todo ".length()).trim();
+        if (description.isEmpty()) {
+            System.out.println(BLUE + "Invalid command format. Use: todo <description>" + RESET);
+            return;
+        }
+        addTask(new Todo(description));
+    }
+
+    /**
+     * Adds a deadline task from a deadline command.
+     *
+     * @param command the user's deadline command
+     */
+    private static void createDeadline(String command) {
+        int byIndex = command.indexOf(" /by ");
+        if (byIndex < 0) {
+            System.out.println(BLUE + "Invalid command format. Use: deadline <description> /by <deadline>" + RESET);
+            return;
+        }
+        String description = command.substring("deadline ".length(), byIndex).trim();
+        String by = command.substring(byIndex + " /by ".length()).trim();
+        if (description.isEmpty() || by.isEmpty()) {
+            System.out.println(BLUE + "Invalid command format. Use: deadline <description> /by <deadline>" + RESET);
+            return;
+        }
+        addTask(new Deadline(description, by));
+    }
+
+    /**
+     * Adds an event task from an event command.
+     *
+     * @param command the user's event command
+     */
+    private static void createEvent(String command) {
+        int fromIndex = command.indexOf(" /from ");
+        int toIndex = command.indexOf(" /to ");
+        if (fromIndex < 0 || toIndex < fromIndex) {
+            System.out.println(BLUE + "Invalid command format. Use: event <description> /from <start> /to <end>" + RESET);
+            return;
+        }
+        String description = command.substring("event ".length(), fromIndex).trim();
+        String from = command.substring(fromIndex + " /from ".length(), toIndex).trim();
+        String to = command.substring(toIndex + " /to ".length()).trim();
+        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
+            System.out.println(BLUE + "Invalid command format. Use: event <description> /from <start> /to <end>" + RESET);
+            return;
+        }
+        addTask(new Event(description, from, to));
     }
 
     private static void exit(String command) {
@@ -78,7 +141,7 @@ public class Bob {
         System.out.println(BLUE + "Here are the tasks in your list:" + RESET);
 
         for (int i = 0; i < currListLen; i++) {
-            System.out.println(GREEN + (i + 1) + ". " + tasks[i] + RESET);
+            System.out.println(GREEN + (i + 1) + "." + tasks[i] + RESET);
         }
     }
 
