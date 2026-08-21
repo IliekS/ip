@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -10,8 +11,8 @@ public class Bob {
     private static final String GREEN = "\u001B[32m";
     private static final String RESET = "\u001B[0m";
 
-    private static Task[] tasks = new Task[100];
-    private static int currListLen = 0;
+    /** Stores the tasks in the order they were added. */
+    private static ArrayList<Task> tasks = new ArrayList<>();
     /**
      * Displays Bob's welcome banner and responds to commands until the user says bye.
      *
@@ -46,14 +47,28 @@ public class Bob {
             exit(command);
         } else if (command.equals("list")) {
             list(command);
+        } else if (command.equals("mark")) {
+            printUsage("mark <task_number>");
         } else if (command.startsWith("mark ")) {
             mark(command);
+        } else if (command.equals("unmark")) {
+            printUsage("unmark <task_number>");
         } else if (command.startsWith("unmark ")) {
             unmark(command);
+        } else if (command.equals("delete")) {
+            printUsage("delete <task_number>");
+        } else if (command.startsWith("delete ")) {
+            delete(command);
+        } else if (command.equals("todo")) {
+            printUsage("todo <description>");
         } else if (command.startsWith("todo ")) {
             createTodo(command);
+        } else if (command.equals("deadline")) {
+            printUsage("deadline <description> /by <deadline>");
         } else if (command.startsWith("deadline ")) {
             createDeadline(command);
+        } else if (command.equals("event")) {
+            printUsage("event <description> /from <start> /to <end>");
         } else if (command.startsWith("event ")) {
             createEvent(command);
         } else {
@@ -61,12 +76,20 @@ public class Bob {
         }
     }
 
+    /**
+     * Displays the required format for an incomplete command.
+     *
+     * @param format the command format to show the user
+     */
+    private static void printUsage(String format) {
+        System.out.println(BLUE + "Invalid command format. Use: " + format + RESET);
+    }
+
     private static void addTask(Task task) {
-        tasks[currListLen] = task;
-        currListLen++;
+        tasks.add(task);
         System.out.println(BLUE + "Got it. I've added this task:" + RESET);
         System.out.println(GREEN + task + RESET);
-        System.out.println(BLUE + "Now you have " + currListLen + " tasks in the list." + RESET);
+        System.out.println(BLUE + "Now you have " + tasks.size() + " tasks in the list." + RESET);
     }
 
     /**
@@ -134,14 +157,14 @@ public class Bob {
 
     private static void list(String command) {
         if (!command.equals("list")) { return; }
-        if (currListLen == 0) {
+        if (tasks.isEmpty()) {
             System.out.println(BLUE + "No tasks yet!" + RESET);
             return;
         }
         System.out.println(BLUE + "Here are the tasks in your list:" + RESET);
 
-        for (int i = 0; i < currListLen; i++) {
-            System.out.println(GREEN + (i + 1) + "." + tasks[i] + RESET);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(GREEN + (i + 1) + "." + tasks.get(i) + RESET);
         }
     }
 
@@ -154,11 +177,11 @@ public class Bob {
         }
         try {
             int taskNumber = Integer.parseInt(parts[1]);
-            if (taskNumber < 1 || taskNumber > currListLen) {
+            if (taskNumber < 1 || taskNumber > tasks.size()) {
                 System.out.println(BLUE + "Invalid task number." + RESET);
                 return;
             }
-            Task task = tasks[taskNumber - 1];
+            Task task = tasks.get(taskNumber - 1);
             task.markAsDone();
             System.out.println(BLUE + "I marked this task as done:" + RESET);
             System.out.println(GREEN + task + RESET);
@@ -181,14 +204,40 @@ public class Bob {
         }
         try {
             int taskNumber = Integer.parseInt(parts[1]);
-            if (taskNumber < 1 || taskNumber > currListLen) {
+            if (taskNumber < 1 || taskNumber > tasks.size()) {
                 System.out.println(BLUE + "Invalid task number." + RESET);
                 return;
             }
-            Task task = tasks[taskNumber - 1];
+            Task task = tasks.get(taskNumber - 1);
             task.markAsNotDone();
             System.out.println(BLUE + "I marked this task as not done:" + RESET);
             System.out.println(GREEN + task + RESET);
+        } catch (NumberFormatException e) {
+            System.out.println(BLUE + "Invalid task number format." + RESET);
+        }
+    }
+
+    /**
+     * Removes the specified task from the list.
+     *
+     * @param command a delete command followed by a task number
+     */
+    private static void delete(String command) {
+        String[] parts = command.split(" ");
+        if (parts.length != 2) {
+            System.out.println(BLUE + "Invalid command format. Use: delete <task_number>" + RESET);
+            return;
+        }
+        try {
+            int taskNumber = Integer.parseInt(parts[1]);
+            if (taskNumber < 1 || taskNumber > tasks.size()) {
+                System.out.println(BLUE + "Invalid task number." + RESET);
+                return;
+            }
+            Task removedTask = tasks.remove(taskNumber - 1);
+            System.out.println(BLUE + "Noted. I've removed this task:" + RESET);
+            System.out.println(GREEN + removedTask + RESET);
+            System.out.println(BLUE + "Now you have " + tasks.size() + " tasks in the list." + RESET);
         } catch (NumberFormatException e) {
             System.out.println(BLUE + "Invalid task number format." + RESET);
         }

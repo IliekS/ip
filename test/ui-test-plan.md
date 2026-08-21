@@ -80,8 +80,70 @@ Bye. Hope to see you again soon!
 ____________________________________________________________
 ```
 
+## Test case: Show usage for commands without required arguments
+Aim: Verify that bare commands requiring arguments show their usage instead of being reported as unknown commands.
+
+Input:
+```text
+todo
+deadline
+event
+mark
+unmark
+delete
+bye
+```
+
+Expected output:
+```text
+ ____        _     
+| __ )  ___ | |__  
+|  _ \ / _ \| '_ \ 
+| |_) | (_) | |_) |
+|____/ \___/|_.__/ 
+
+Hello! I'm Bob.
+What can I do for you?
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: todo <description>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: deadline <description> /by <deadline>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: event <description> /from <start> /to <end>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: mark <task_number>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: unmark <task_number>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: delete <task_number>
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
 ## Test case: Reject invalid commands without changing saved tasks
-Aim: Verify that invalid deadline, event, mark, and unmark commands do not add tasks or change the completion state of existing tasks.
+Aim: Verify that invalid deadline, event, mark, unmark, and delete commands do not corrupt saved tasks, while valid deletion removes and reindexes a task.
 
 Input:
 ```text
@@ -90,8 +152,9 @@ deadline missing date
 list
 event meeting /from 2pm
 todo second task
-mark 3
+delete 3
 mark 2
+delete 1
 unmark nope
 list
 bye
@@ -152,14 +215,20 @@ ____________________________________________________________
 
 ____________________________________________________________
 
+Noted. I've removed this task:
+[T][ ] first task
+Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
 Invalid task number format.
 ____________________________________________________________
 
 ____________________________________________________________
 
 Here are the tasks in your list:
-1.[T][ ] first task
-2.[T][X] second task
+1.[T][X] second task
 ____________________________________________________________
 
 ____________________________________________________________
