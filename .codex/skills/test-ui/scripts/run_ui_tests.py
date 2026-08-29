@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -113,14 +114,19 @@ def run_test_case(
     project_root: Path, class_path: Path, test_case: UiTestCase, main_class: str, java_command: str
 ) -> bool:
     """Runs one isolated UI test case and compares its output exactly."""
-    result = subprocess.run(
-        [java_command, "-cp", str(class_path), main_class],
-        cwd=project_root,
-        input=test_case.commands + "\n",
-        text=True,
-        capture_output=True,
-        check=False,
-    )
+    # Give each UI case its own working directory so relative application data
+    # cannot leak between otherwise independent command sessions.
+    with tempfile.TemporaryDirectory(prefix="bob-ui-test-") as test_directory:
+        working_directory = Path(test_directory) / "working-directory"
+        working_directory.mkdir()
+        result = subprocess.run(
+            [java_command, "-cp", str(class_path), main_class],
+            cwd=working_directory,
+            input=test_case.commands + "\n",
+            text=True,
+            capture_output=True,
+            check=False,
+        )
     actual_output = normalise_output(result.stdout + result.stderr)
 
     print("\nTest case: " + test_case.name)

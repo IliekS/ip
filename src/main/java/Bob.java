@@ -1,3 +1,6 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -11,14 +14,19 @@ public class Bob {
     private static final String GREEN = "\u001B[32m";
     private static final String RESET = "\u001B[0m";
 
+    /** Loads and saves tasks using an operating-system-independent relative path. */
+    private static final Storage STORAGE = createStorage();
+
     /** Stores the tasks in the order they were added. */
     private static ArrayList<Task> tasks = new ArrayList<>();
+
     /**
      * Displays Bob's welcome banner and responds to commands until the user says bye.
      *
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
+        loadTasks();
         String banner = " ____        _     \n"
                 + "| __ )  ___ | |__  \n"
                 + "|  _ \\ / _ \\| '_ \\ \n"
@@ -87,6 +95,7 @@ public class Bob {
 
     private static void addTask(Task task) {
         tasks.add(task);
+        saveTasks();
         System.out.println(BLUE + "Got it. I've added this task:" + RESET);
         System.out.println(GREEN + task + RESET);
         System.out.println(BLUE + "Now you have " + tasks.size() + " tasks in the list." + RESET);
@@ -183,6 +192,7 @@ public class Bob {
             }
             Task task = tasks.get(taskNumber - 1);
             task.markAsDone();
+            saveTasks();
             System.out.println(BLUE + "I marked this task as done:" + RESET);
             System.out.println(GREEN + task + RESET);
         } catch (NumberFormatException e) {
@@ -210,6 +220,7 @@ public class Bob {
             }
             Task task = tasks.get(taskNumber - 1);
             task.markAsNotDone();
+            saveTasks();
             System.out.println(BLUE + "I marked this task as not done:" + RESET);
             System.out.println(GREEN + task + RESET);
         } catch (NumberFormatException e) {
@@ -235,11 +246,47 @@ public class Bob {
                 return;
             }
             Task removedTask = tasks.remove(taskNumber - 1);
+            saveTasks();
             System.out.println(BLUE + "Noted. I've removed this task:" + RESET);
             System.out.println(GREEN + removedTask + RESET);
             System.out.println(BLUE + "Now you have " + tasks.size() + " tasks in the list." + RESET);
         } catch (NumberFormatException e) {
             System.out.println(BLUE + "Invalid task number format." + RESET);
         }
+    }
+
+    /** Loads saved tasks and continues with an empty list if loading fails. */
+    private static void loadTasks() {
+        try {
+            tasks = STORAGE.load();
+        } catch (IOException exception) {
+            System.err.println("Warning: could not load tasks from the data file.");
+            tasks = new ArrayList<>();
+        }
+    }
+
+    /** Saves the current task list and reports errors without terminating Bob. */
+    private static void saveTasks() {
+        try {
+            STORAGE.save(tasks);
+        } catch (IOException exception) {
+            System.err.println("Warning: could not save tasks to the data file.");
+        }
+    }
+
+    /**
+     * Locates Bob's data folder inside the ip project for common launch locations.
+     *
+     * @return storage configured inside the ip project
+     */
+    private static Storage createStorage() {
+        Path workingDirectory = Path.of("").toAbsolutePath();
+        if (Files.isDirectory(workingDirectory.resolve(Path.of("src", "main", "java")))) {
+            return new Storage("data", "bob.txt");
+        }
+        if (Files.isDirectory(workingDirectory.resolve(Path.of("ip", "src", "main", "java")))) {
+            return new Storage("ip", "data", "bob.txt");
+        }
+        return new Storage("data", "bob.txt");
     }
 }
