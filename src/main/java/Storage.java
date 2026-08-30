@@ -25,6 +25,22 @@ public class Storage {
     }
 
     /**
+     * Creates storage inside the ip project for common application launch locations.
+     *
+     * @return storage configured for Bob's data file
+     */
+    public static Storage createDefaultStorage() {
+        Path workingDirectory = Path.of("").toAbsolutePath();
+        if (Files.isDirectory(workingDirectory.resolve(Path.of("src", "main", "java")))) {
+            return new Storage("data", "bob.txt");
+        }
+        if (Files.isDirectory(workingDirectory.resolve(Path.of("ip", "src", "main", "java")))) {
+            return new Storage("ip", "data", "bob.txt");
+        }
+        return new Storage("data", "bob.txt");
+    }
+
+    /**
      * Loads all valid tasks from the data file.
      * Missing files are treated as an empty task list.
      *
@@ -68,6 +84,13 @@ public class Storage {
         Files.write(filePath, lines, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Converts one saved data line into a task.
+     *
+     * @param line saved task data
+     * @return task represented by the line
+     * @throws IllegalArgumentException if the data is malformed
+     */
     private Task parseTask(String line) {
         String[] fields = line.split(" \\| ", -1);
         if (fields.length < 3) {
@@ -101,6 +124,12 @@ public class Storage {
         return task;
     }
 
+    /**
+     * Converts a task into its saved data representation.
+     *
+     * @param task task to format
+     * @return data line representing the task
+     */
     private String formatTask(Task task) {
         String status = task.isDone() ? "1" : "0";
         if (task instanceof Todo) {
@@ -115,6 +144,13 @@ public class Storage {
         throw new IllegalArgumentException("Unsupported task type");
     }
 
+    /**
+     * Converts a saved completion-status field into a boolean.
+     *
+     * @param status saved status value
+     * @return true for a completed task and false for an incomplete task
+     * @throws IllegalArgumentException if the status is neither 0 nor 1
+     */
     private boolean parseDoneStatus(String status) {
         if (status.equals("1")) {
             return true;
@@ -124,6 +160,13 @@ public class Storage {
         throw new IllegalArgumentException("Invalid task status");
     }
 
+    /**
+     * Verifies that a saved record has the expected number of non-empty fields.
+     *
+     * @param fields fields parsed from a saved record
+     * @param expectedCount required number of fields
+     * @throws IllegalArgumentException if the record structure is invalid
+     */
     private void requireFieldCount(String[] fields, int expectedCount) {
         if (fields.length != expectedCount) {
             throw new IllegalArgumentException("Incorrect number of fields");

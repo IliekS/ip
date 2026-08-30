@@ -1,292 +1,277 @@
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
- * Starts Bob, the chatbot.
+ * Coordinates the components of the Bob chatbot.
  */
 public class Bob {
-    /** Separates each chatbot response in the terminal. */
-    private static final String DIVIDER = "____________________________________________________________";
-    private static final String BLUE = "\u001B[34m";
-    private static final String GREEN = "\u001B[32m";
-    private static final String RESET = "\u001B[0m";
+    private static final String MARK_USAGE = "mark <task_number>";
+    private static final String UNMARK_USAGE = "unmark <task_number>";
+    private static final String DELETE_USAGE = "delete <task_number>";
+    private static final String TODO_USAGE = "todo <description>";
+    private static final String DEADLINE_USAGE = "deadline <description> /by <deadline>";
+    private static final String EVENT_USAGE = "event <description> /from <start> /to <end>";
 
-    /** Loads and saves tasks using an operating-system-independent relative path. */
-    private static final Storage STORAGE = createStorage();
+    private final Parser parser;
+    private final Storage storage;
+    private final TaskList tasks;
+    private final Ui ui;
 
-    /** Stores the tasks in the order they were added. */
-    private static ArrayList<Task> tasks = new ArrayList<>();
+    /** Creates Bob with its UI, parser, task list, and default storage. */
+    public Bob() {
+        this.ui = new Ui();
+        this.parser = new Parser();
+        this.storage = Storage.createDefaultStorage();
+        this.tasks = loadTasks();
+    }
 
     /**
-     * Displays Bob's welcome banner and responds to commands until the user says bye.
+     * Starts Bob and responds to commands until the user exits or input ends.
      *
      * @param args command-line arguments, which are not used
      */
     public static void main(String[] args) {
-        loadTasks();
-        String banner = " ____        _     \n"
-                + "| __ )  ___ | |__  \n"
-                + "|  _ \\ / _ \\| '_ \\ \n"
-                + "| |_) | (_) | |_) |\n"
-                + "|____/ \\___/|_.__/ \n";
-
-        System.out.println(banner);
-        System.out.println(BLUE + "Hello! I'm Bob.");
-        System.out.println("What can I do for you?" + RESET);
-        System.out.println(DIVIDER);
-        System.out.println();
-
-        Scanner scanner = new Scanner(System.in);
-        while (scanner.hasNextLine()) {
-            System.out.println(DIVIDER);
-            System.out.println();
-            String command = scanner.nextLine();
-            executeCommand(command);
-            System.out.println(DIVIDER);
-            System.out.println();
-        }
+        new Bob().run();
     }
 
-    private static void executeCommand(String command) {
-        if (command.equals("bye")) {
-            exit(command);
-        } else if (command.equals("list")) {
-            list(command);
-        } else if (command.equals("mark")) {
-            printUsage("mark <task_number>");
-        } else if (command.startsWith("mark ")) {
-            mark(command);
-        } else if (command.equals("unmark")) {
-            printUsage("unmark <task_number>");
-        } else if (command.startsWith("unmark ")) {
-            unmark(command);
-        } else if (command.equals("delete")) {
-            printUsage("delete <task_number>");
-        } else if (command.startsWith("delete ")) {
-            delete(command);
-        } else if (command.equals("todo")) {
-            printUsage("todo <description>");
-        } else if (command.startsWith("todo ")) {
-            createTodo(command);
-        } else if (command.equals("deadline")) {
-            printUsage("deadline <description> /by <deadline>");
-        } else if (command.startsWith("deadline ")) {
-            createDeadline(command);
-        } else if (command.equals("event")) {
-            printUsage("event <description> /from <start> /to <end>");
-        } else if (command.startsWith("event ")) {
-            createEvent(command);
-        } else {
-            System.out.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
+    /** Displays the welcome message and runs the command loop. */
+    public void run() {
+        ui.showWelcome();
+        while (ui.hasNextCommand()) {
+            ui.showCommandStart();
+            ParsedCommand parsedCommand = parser.parse(ui.readCommand());
+            boolean shouldExit = executeCommand(parsedCommand);
+            ui.showCommandEnd();
+            if (shouldExit) {
+                return;
+            }
         }
     }
 
     /**
-     * Displays the required format for an incomplete command.
+     * Executes one parsed command.
      *
-     * @param format the command format to show the user
+     * @param parsedCommand command type and arguments supplied by the user
+     * @return true if Bob should exit after executing the command
      */
-    private static void printUsage(String format) {
-        System.out.println(BLUE + "Invalid command format. Use: " + format + RESET);
+    private boolean executeCommand(ParsedCommand parsedCommand) {
+        switch (parsedCommand.getCommand()) {
+            case BYE:
+                return exit(parsedCommand.getArguments());
+            case LIST:
+                list(parsedCommand.getArguments());
+                break;
+            case MARK:
+                mark(parsedCommand.getArguments());
+                break;
+            case UNMARK:
+                unmark(parsedCommand.getArguments());
+                break;
+            case DELETE:
+                delete(parsedCommand.getArguments());
+                break;
+            case TODO:
+                createTodo(parsedCommand.getArguments());
+                break;
+            case DEADLINE:
+                createDeadline(parsedCommand.getArguments());
+                break;
+            case EVENT:
+                createEvent(parsedCommand.getArguments());
+                break;
+            default:
+                ui.showUnknownCommand();
+                break;
+        }
+        return false;
     }
 
-    private static void addTask(Task task) {
-        tasks.add(task);
+    /**
+     * Exits when the bye command has no arguments.
+     *
+     * @param arguments text following the bye command
+     * @return true when Bob should exit
+     */
+    private boolean exit(String arguments) {
+        if (!arguments.isEmpty()) {
+            ui.showUnknownCommand();
+            return false;
+        }
+        ui.showGoodbye();
+        return true;
+    }
+
+    /**
+     * Displays all tasks when the list command has no arguments.
+     *
+     * @param arguments text following the list command
+     */
+    private void list(String arguments) {
+        if (!arguments.isEmpty()) {
+            ui.showUnknownCommand();
+            return;
+        }
+        ui.showTaskList(tasks);
+    }
+
+    /**
+     * Marks the task identified by the command argument as complete.
+     *
+     * @param arguments task number supplied after the mark command
+     */
+    private void mark(String arguments) {
+        Integer taskNumber = parseTaskNumber(arguments, MARK_USAGE);
+        if (taskNumber == null) {
+            return;
+        }
+        Task task = tasks.get(taskNumber);
+        task.markAsDone();
         saveTasks();
-        System.out.println(BLUE + "Got it. I've added this task:" + RESET);
-        System.out.println(GREEN + task + RESET);
-        System.out.println(BLUE + "Now you have " + tasks.size() + " tasks in the list." + RESET);
+        ui.showMarkedTask(task, true);
     }
 
     /**
-     * Adds a to-do task from a todo command.
+     * Marks the task identified by the command argument as incomplete.
      *
-     * @param command the user's todo command
+     * @param arguments task number supplied after the unmark command
      */
-    private static void createTodo(String command) {
-        String description = command.substring("todo ".length()).trim();
+    private void unmark(String arguments) {
+        Integer taskNumber = parseTaskNumber(arguments, UNMARK_USAGE);
+        if (taskNumber == null) {
+            return;
+        }
+        Task task = tasks.get(taskNumber);
+        task.markAsNotDone();
+        saveTasks();
+        ui.showMarkedTask(task, false);
+    }
+
+    /**
+     * Removes the task identified by the command argument.
+     *
+     * @param arguments task number supplied after the delete command
+     */
+    private void delete(String arguments) {
+        Integer taskNumber = parseTaskNumber(arguments, DELETE_USAGE);
+        if (taskNumber == null) {
+            return;
+        }
+        Task removedTask = tasks.remove(taskNumber);
+        saveTasks();
+        ui.showDeletedTask(removedTask, tasks.size());
+    }
+
+    /**
+     * Creates a to-do task from the supplied description.
+     *
+     * @param arguments description supplied after the todo command
+     */
+    private void createTodo(String arguments) {
+        String description = arguments.trim();
         if (description.isEmpty()) {
-            System.out.println(BLUE + "Invalid command format. Use: todo <description>" + RESET);
+            ui.showUsage(TODO_USAGE);
             return;
         }
         addTask(new Todo(description));
     }
 
     /**
-     * Adds a deadline task from a deadline command.
+     * Creates a deadline task from its description and deadline text.
      *
-     * @param command the user's deadline command
+     * @param arguments text supplied after the deadline command
      */
-    private static void createDeadline(String command) {
-        int byIndex = command.indexOf(" /by ");
-        if (byIndex <= "deadline ".length()) {
-            System.out.println(BLUE + "Invalid command format. Use: deadline <description> /by <deadline>" + RESET);
+    private void createDeadline(String arguments) {
+        int byIndex = arguments.indexOf(" /by ");
+        if (byIndex <= 0) {
+            ui.showUsage(DEADLINE_USAGE);
             return;
         }
-        String description = command.substring("deadline ".length(), byIndex).trim();
-        String by = command.substring(byIndex + " /by ".length()).trim();
+        String description = arguments.substring(0, byIndex).trim();
+        String by = arguments.substring(byIndex + " /by ".length()).trim();
         if (description.isEmpty() || by.isEmpty()) {
-            System.out.println(BLUE + "Invalid command format. Use: deadline <description> /by <deadline>" + RESET);
+            ui.showUsage(DEADLINE_USAGE);
             return;
         }
         addTask(new Deadline(description, by));
     }
 
     /**
-     * Adds an event task from an event command.
+     * Creates an event task from its description, start time, and end time.
      *
-     * @param command the user's event command
+     * @param arguments text supplied after the event command
      */
-    private static void createEvent(String command) {
-        int fromIndex = command.indexOf(" /from ");
-        int toIndex = command.indexOf(" /to ");
-        if (fromIndex <= "event ".length() || toIndex < fromIndex) {
-            System.out.println(BLUE + "Invalid command format. Use: event <description> /from <start> /to <end>" + RESET);
+    private void createEvent(String arguments) {
+        int fromIndex = arguments.indexOf(" /from ");
+        int toIndex = arguments.indexOf(" /to ");
+        if (fromIndex <= 0 || toIndex < fromIndex) {
+            ui.showUsage(EVENT_USAGE);
             return;
         }
-        String description = command.substring("event ".length(), fromIndex).trim();
-        String from = command.substring(fromIndex + " /from ".length(), toIndex).trim();
-        String to = command.substring(toIndex + " /to ".length()).trim();
+        String description = arguments.substring(0, fromIndex).trim();
+        String from = arguments.substring(fromIndex + " /from ".length(), toIndex).trim();
+        String to = arguments.substring(toIndex + " /to ".length()).trim();
         if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            System.out.println(BLUE + "Invalid command format. Use: event <description> /from <start> /to <end>" + RESET);
+            ui.showUsage(EVENT_USAGE);
             return;
         }
         addTask(new Event(description, from, to));
     }
 
-    private static void exit(String command) {
-        if (!command.equals("bye")) { return; }
-        System.out.println(BLUE + "Bye. Hope to see you again soon!" + RESET);
-        System.out.println(DIVIDER);
-        System.exit(0);
+    /**
+     * Adds a task, saves the updated list, and displays the result.
+     *
+     * @param task task to add
+     */
+    private void addTask(Task task) {
+        tasks.add(task);
+        saveTasks();
+        ui.showAddedTask(task, tasks.size());
     }
 
-    private static void list(String command) {
-        if (!command.equals("list")) { return; }
-        if (tasks.isEmpty()) {
-            System.out.println(BLUE + "No tasks yet!" + RESET);
-            return;
-        }
-        System.out.println(BLUE + "Here are the tasks in your list:" + RESET);
-
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(GREEN + (i + 1) + "." + tasks.get(i) + RESET);
-        }
-    }
-
-    private static void mark(String command) {
-        if (!command.startsWith("mark ")) { return; }
-        String[] parts = command.split(" ");
-        if (parts.length != 2) {
-            System.out.println(BLUE + "Invalid command format. Use: mark <task_number>" + RESET);
-            return;
+    /**
+     * Parses and validates a one-based task number.
+     *
+     * @param arguments task-number text to parse
+     * @param usage command format displayed when an argument is missing or malformed
+     * @return the valid one-based task number, or null when validation fails
+     */
+    private Integer parseTaskNumber(String arguments, String usage) {
+        if (arguments.isEmpty() || arguments.contains(" ")) {
+            ui.showUsage(usage);
+            return null;
         }
         try {
-            int taskNumber = Integer.parseInt(parts[1]);
-            if (taskNumber < 1 || taskNumber > tasks.size()) {
-                System.out.println(BLUE + "Invalid task number." + RESET);
-                return;
+            int taskNumber = Integer.parseInt(arguments);
+            if (!tasks.containsTaskNumber(taskNumber)) {
+                ui.showInvalidTaskNumber();
+                return null;
             }
-            Task task = tasks.get(taskNumber - 1);
-            task.markAsDone();
-            saveTasks();
-            System.out.println(BLUE + "I marked this task as done:" + RESET);
-            System.out.println(GREEN + task + RESET);
-        } catch (NumberFormatException e) {
-            System.out.println(BLUE + "Invalid task number format." + RESET);
+            return taskNumber;
+        } catch (NumberFormatException exception) {
+            ui.showInvalidTaskNumberFormat();
+            return null;
         }
     }
 
     /**
-     * Marks the specified task as incomplete.
+     * Loads saved tasks, falling back to an empty task list when reading fails.
      *
-     * @param command an unmark command followed by a task number
+     * @return the loaded or empty task list
      */
-    private static void unmark(String command) {
-        if (!command.startsWith("unmark ")) { return; }
-        String[] parts = command.split(" ");
-        if (parts.length != 2) {
-            System.out.println(BLUE + "Invalid command format. Use: unmark <task_number>" + RESET);
-            return;
-        }
+    private TaskList loadTasks() {
         try {
-            int taskNumber = Integer.parseInt(parts[1]);
-            if (taskNumber < 1 || taskNumber > tasks.size()) {
-                System.out.println(BLUE + "Invalid task number." + RESET);
-                return;
-            }
-            Task task = tasks.get(taskNumber - 1);
-            task.markAsNotDone();
-            saveTasks();
-            System.out.println(BLUE + "I marked this task as not done:" + RESET);
-            System.out.println(GREEN + task + RESET);
-        } catch (NumberFormatException e) {
-            System.out.println(BLUE + "Invalid task number format." + RESET);
-        }
-    }
-
-    /**
-     * Removes the specified task from the list.
-     *
-     * @param command a delete command followed by a task number
-     */
-    private static void delete(String command) {
-        String[] parts = command.split(" ");
-        if (parts.length != 2) {
-            System.out.println(BLUE + "Invalid command format. Use: delete <task_number>" + RESET);
-            return;
-        }
-        try {
-            int taskNumber = Integer.parseInt(parts[1]);
-            if (taskNumber < 1 || taskNumber > tasks.size()) {
-                System.out.println(BLUE + "Invalid task number." + RESET);
-                return;
-            }
-            Task removedTask = tasks.remove(taskNumber - 1);
-            saveTasks();
-            System.out.println(BLUE + "Noted. I've removed this task:" + RESET);
-            System.out.println(GREEN + removedTask + RESET);
-            System.out.println(BLUE + "Now you have " + tasks.size() + " tasks in the list." + RESET);
-        } catch (NumberFormatException e) {
-            System.out.println(BLUE + "Invalid task number format." + RESET);
-        }
-    }
-
-    /** Loads saved tasks and continues with an empty list if loading fails. */
-    private static void loadTasks() {
-        try {
-            tasks = STORAGE.load();
+            return new TaskList(storage.load());
         } catch (IOException exception) {
-            System.err.println("Warning: could not load tasks from the data file.");
-            tasks = new ArrayList<>();
+            ui.showLoadingError();
+            return new TaskList();
         }
     }
 
     /** Saves the current task list and reports errors without terminating Bob. */
-    private static void saveTasks() {
+    private void saveTasks() {
         try {
-            STORAGE.save(tasks);
+            storage.save(tasks.asList());
         } catch (IOException exception) {
-            System.err.println("Warning: could not save tasks to the data file.");
+            ui.showSavingError();
         }
-    }
-
-    /**
-     * Locates Bob's data folder inside the ip project for common launch locations.
-     *
-     * @return storage configured inside the ip project
-     */
-    private static Storage createStorage() {
-        Path workingDirectory = Path.of("").toAbsolutePath();
-        if (Files.isDirectory(workingDirectory.resolve(Path.of("src", "main", "java")))) {
-            return new Storage("data", "bob.txt");
-        }
-        if (Files.isDirectory(workingDirectory.resolve(Path.of("ip", "src", "main", "java")))) {
-            return new Storage("ip", "data", "bob.txt");
-        }
-        return new Storage("data", "bob.txt");
     }
 }
