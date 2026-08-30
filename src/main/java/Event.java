@@ -1,70 +1,47 @@
+import java.time.temporal.TemporalAccessor;
+
 /**
- * Represents a task scheduled between a start and end time.
+ * Represents a task scheduled between a start and end date or date-time.
  */
 public class Event extends Task {
-    /** The event start time entered by the user. */
-    private final String from;
-
-    /** The event end time entered by the user. */
-    private final String to;
+    private final TemporalAccessor from;
+    private final TemporalAccessor to;
 
     /**
-     * Creates an event whose schedule is stored as one text value.
+     * Creates an event task and parses its start and end values.
      *
      * @param description the event description
-     * @param when the event schedule
-     */
-    public Event(String description, String when) {
-        super(description);
-        this.from = when;
-        this.to = null;
-    }
-
-    /**
-     * Creates an event task with its description and schedule text.
-     *
-     * @param description the event description
-     * @param from the event start time
-     * @param to the event end time
+     * @param from start in dd/MM/yyyy or dd/MM/yyyy HHmm format
+     * @param to end in dd/MM/yyyy or dd/MM/yyyy HHmm format
      */
     public Event(String description, String from, String to) {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.from = DateTimeParser.parse(from);
+        this.to = DateTimeParser.parse(to);
     }
 
     /**
-     * Returns the event start time entered for this task.
+     * Returns the parsed event start.
      *
-     * @return the event start time
+     * @return start stored as LocalDate or LocalDateTime
      */
-    public String getFrom() {
+    public TemporalAccessor getFrom() {
         return from;
     }
 
     /**
-     * Returns the event end time entered for this task.
+     * Returns the parsed event end.
      *
-     * @return the event end time
+     * @return end stored as LocalDate or LocalDateTime
      */
-    public String getTo() {
+    public TemporalAccessor getTo() {
         return to;
-    }
-
-    /**
-     * Returns the complete event schedule for storage.
-     *
-     * @return the event schedule
-     */
-    public String getWhen() {
-        return to == null ? from : from + " to: " + to;
     }
 
     @Override
     public String toString() {
-        if (to == null) {
-            return "[E]" + super.toString() + " (at: " + from + ")";
-        }
-        return "[E]" + super.toString() + " (from: " + from + " to: " + to + ")";
+        return "[E]" + super.toString()
+                + " (from: " + DateTimeParser.formatForDisplay(from)
+                + " to: " + DateTimeParser.formatForDisplay(to) + ")";
     }
 }

@@ -13,8 +13,8 @@ Aim: Verify that Bob creates to-do, deadline, and event tasks, updates a task's 
 Input:
 ```text
 todo borrow book
-deadline return book /by Sunday
-event project meeting /from Mon 2pm /to 4pm
+deadline return book /by 2/12/2019 1800
+event project meeting /from 03/12/2019 1400 /to 03/12/2019 1600
 mark 1
 unmark 1
 list
@@ -43,14 +43,14 @@ ____________________________________________________________
 ____________________________________________________________
 
 Got it. I've added this task:
-[D][ ] return book (by: Sunday)
+[D][ ] return book (by: Dec 02 2019 at 1800hrs)
 Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
 
 Got it. I've added this task:
-[E][ ] project meeting (from: Mon 2pm to: 4pm)
+[E][ ] project meeting (from: Dec 03 2019 at 1400hrs to: Dec 03 2019 at 1600hrs)
 Now you have 3 tasks in the list.
 ____________________________________________________________
 
@@ -70,8 +70,8 @@ ____________________________________________________________
 
 Here are the tasks in your list:
 1.[T][ ] borrow book
-2.[D][ ] return book (by: Sunday)
-3.[E][ ] project meeting (from: Mon 2pm to: 4pm)
+2.[D][ ] return book (by: Dec 02 2019 at 1800hrs)
+3.[E][ ] project meeting (from: Dec 03 2019 at 1400hrs to: Dec 03 2019 at 1600hrs)
 ____________________________________________________________
 
 ____________________________________________________________
@@ -113,12 +113,12 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-Invalid command format. Use: deadline <description> /by <deadline>
+Invalid command format. Use: deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>
 ____________________________________________________________
 
 ____________________________________________________________
 
-Invalid command format. Use: event <description> /from <start> /to <end>
+Invalid command format. Use: event <description> /from <dd/MM/yyyy or dd/MM/yyyy HHmm> /to <dd/MM/yyyy or dd/MM/yyyy HHmm>
 ____________________________________________________________
 
 ____________________________________________________________
@@ -149,8 +149,10 @@ Input:
 ```text
 todo first task
 deadline missing date
+deadline impossible date /by 31/02/2019
 list
 event meeting /from 2pm
+event invalid time /from 03/12/2019 2400 /to 03/12/2019 2500
 todo second task
 delete 3
 mark 2
@@ -181,7 +183,12 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-Invalid command format. Use: deadline <description> /by <deadline>
+Invalid command format. Use: deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid date or time. Use dd/MM/yyyy or dd/MM/yyyy HHmm with a 24-hour time.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -192,7 +199,12 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-Invalid command format. Use: event <description> /from <start> /to <end>
+Invalid command format. Use: event <description> /from <dd/MM/yyyy or dd/MM/yyyy HHmm> /to <dd/MM/yyyy or dd/MM/yyyy HHmm>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid date or time. Use dd/MM/yyyy or dd/MM/yyyy HHmm with a 24-hour time.
 ____________________________________________________________
 
 ____________________________________________________________
@@ -263,12 +275,12 @@ ____________________________________________________________
 
 ____________________________________________________________
 
-Invalid command format. Use: deadline <description> /by <deadline>
+Invalid command format. Use: deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>
 ____________________________________________________________
 
 ____________________________________________________________
 
-Invalid command format. Use: event <description> /from <start> /to <end>
+Invalid command format. Use: event <description> /from <dd/MM/yyyy or dd/MM/yyyy HHmm> /to <dd/MM/yyyy or dd/MM/yyyy HHmm>
 ____________________________________________________________
 
 ____________________________________________________________

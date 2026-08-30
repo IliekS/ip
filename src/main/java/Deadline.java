@@ -1,32 +1,33 @@
+import java.time.temporal.TemporalAccessor;
+
 /**
- * Represents a task that must be completed by a specified time.
+ * Represents a task that must be completed by a specified date or date-time.
  */
 public class Deadline extends Task {
-    /** The deadline text entered by the user. */
-    private final String by;
+    private final TemporalAccessor by;
 
     /**
-     * Creates a deadline task with its description and deadline text.
+     * Creates a deadline task and parses its deadline value.
      *
      * @param description the task description
-     * @param by the deadline text
+     * @param by deadline in dd/MM/yyyy or dd/MM/yyyy HHmm format
      */
     public Deadline(String description, String by) {
         super(description);
-        this.by = by;
+        this.by = DateTimeParser.parse(by);
     }
 
     /**
-     * Returns the deadline text entered for this task.
+     * Returns the parsed deadline.
      *
-     * @return the deadline text
+     * @return deadline stored as LocalDate or LocalDateTime
      */
-    public String getBy() {
+    public TemporalAccessor getBy() {
         return by;
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        return "[D]" + super.toString() + " (by: " + DateTimeParser.formatForDisplay(by) + ")";
     }
 }

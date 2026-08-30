@@ -112,6 +112,12 @@ public class Ui {
         System.out.println(BLUE + "Invalid task number format." + RESET);
     }
 
+    /** Displays the accepted date and date-time input formats. */
+    public void showInvalidDateTime() {
+        System.out.println(BLUE + "Invalid date or time. Use dd/MM/yyyy or "
+                + "dd/MM/yyyy HHmm with a 24-hour time." + RESET);
+    }
+
     /** Reports that saved tasks could not be loaded. */
     public void showLoadingError() {
         System.err.println("Warning: could not load tasks from the data file.");
