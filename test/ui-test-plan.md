@@ -301,3 +301,94 @@ ____________________________________________________________
 Bye. Hope to see you again soon!
 ____________________________________________________________
 ```
+
+## Test case: Find tasks by keyword
+Aim: Verify that find displays matching tasks in their original order, ignores letter case, and rejects a blank keyword.
+
+Input:
+```text
+todo read book
+deadline return book /by 2/12/2019
+todo watch movie
+mark 1
+mark 2
+find BOOK
+find movie
+find missing
+find
+bye
+```
+
+Expected output:
+```text
+ ____        _     
+| __ )  ___ | |__  
+|  _ \ / _ \| '_ \ 
+| |_) | (_) | |_) |
+|____/ \___/|_.__/ 
+
+Hello! I'm Bob.
+What can I do for you?
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[T][ ] read book
+Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[D][ ] return book (by: Dec 02 2019)
+Now you have 2 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[T][ ] watch movie
+Now you have 3 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+I marked this task as done:
+[T][X] read book
+____________________________________________________________
+
+____________________________________________________________
+
+I marked this task as done:
+[D][X] return book (by: Dec 02 2019)
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the matching tasks in your list:
+1.[T][X] read book
+2.[D][X] return book (by: Dec 02 2019)
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the matching tasks in your list:
+1.[T][ ] watch movie
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the matching tasks in your list:
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: find <keyword>
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```

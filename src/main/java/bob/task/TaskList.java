@@ -3,6 +3,7 @@ package bob.task;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Owns and manages Bob's ordered collection of tasks.
@@ -49,7 +50,29 @@ public class TaskList {
         return tasks.isEmpty();
     }
 
-    /** Returns the number of tasks in this list. */
+    /**
+     * Returns tasks whose descriptions contain the keyword, ignoring letter case.
+     *
+     * @param keyword Keyword to find in task descriptions.
+     * @return Matching tasks in their original order.
+     */
+    public TaskList find(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        ArrayList<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            String normalizedDescription = task.getDescription().toLowerCase(Locale.ROOT);
+            if (normalizedDescription.contains(normalizedKeyword)) {
+                matchingTasks.add(task);
+            }
+        }
+        return new TaskList(matchingTasks);
+    }
+
+    /**
+     * Returns the number of tasks in this list.
+     *
+     * @return Number of tasks.
+     */
     public int size() {
         return tasks.size();
     }

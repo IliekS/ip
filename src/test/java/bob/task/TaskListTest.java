@@ -78,6 +78,40 @@ public class TaskListTest {
     }
 
     @Test
+    public void find_keywordInSomeDescriptions_returnsMatchesInOriginalOrder() {
+        Task firstMatch = new Todo("read book");
+        Task nonMatch = new Todo("buy groceries");
+        Task secondMatch = new Todo("return book");
+        TaskList tasks = new TaskList(List.of(firstMatch, nonMatch, secondMatch));
+
+        TaskList matches = tasks.find("book");
+
+        assertEquals(2, matches.size());
+        assertSame(firstMatch, matches.get(1));
+        assertSame(secondMatch, matches.get(2));
+    }
+
+    @Test
+    public void find_keywordWithDifferentCase_returnsMatchingTasks() {
+        Task matchingTask = new Todo("Read Book");
+        TaskList tasks = new TaskList(List.of(matchingTask));
+
+        TaskList matches = tasks.find("BOOK");
+
+        assertEquals(1, matches.size());
+        assertSame(matchingTask, matches.get(1));
+    }
+
+    @Test
+    public void find_keywordAbsent_returnsEmptyList() {
+        TaskList tasks = new TaskList(List.of(new Todo("read book")));
+
+        TaskList matches = tasks.find("movie");
+
+        assertTrue(matches.isEmpty());
+    }
+
+    @Test
     public void asList_addAttempt_exceptionThrown() {
         TaskList tasks = new TaskList(List.of(new Todo("first")));
 

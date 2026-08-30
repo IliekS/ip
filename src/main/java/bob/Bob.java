@@ -21,6 +21,7 @@ public class Bob {
     private static final String MARK_USAGE = "mark <task_number>";
     private static final String UNMARK_USAGE = "unmark <task_number>";
     private static final String DELETE_USAGE = "delete <task_number>";
+    private static final String FIND_USAGE = "find <keyword>";
     private static final String TODO_USAGE = "todo <description>";
     private static final String DEADLINE_USAGE =
             "deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>";
@@ -77,6 +78,9 @@ public class Bob {
             case LIST:
                 list(parsedCommand.getArguments());
                 break;
+            case FIND:
+                find(parsedCommand.getArguments());
+                break;
             case MARK:
                 mark(parsedCommand.getArguments());
                 break;
@@ -128,6 +132,20 @@ public class Bob {
             return;
         }
         ui.showTaskList(tasks);
+    }
+
+    /**
+     * Displays tasks with descriptions containing the supplied keyword.
+     *
+     * @param arguments Keyword supplied after the find command.
+     */
+    private void find(String arguments) {
+        String keyword = arguments.trim();
+        if (keyword.isEmpty()) {
+            ui.showUsage(FIND_USAGE);
+            return;
+        }
+        ui.showMatchingTasks(tasks.find(keyword));
     }
 
     /**
