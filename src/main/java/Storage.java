@@ -10,7 +10,7 @@ import java.util.List;
  */
 public class Storage {
     private static final String FIELD_SEPARATOR = " | ";
-    private static final String EVENT_TIME_SEPARATOR = " to: ";
+    private static final String EVENT_TIME_SEPARATOR = " to ";
 
     private final Path filePath;
 
@@ -110,9 +110,10 @@ public class Storage {
             case "E":
                 requireFieldCount(fields, 4);
                 String[] times = fields[3].split(EVENT_TIME_SEPARATOR, 2);
-                task = times.length == 2
-                        ? new Event(fields[2], times[0], times[1])
-                        : new Event(fields[2], fields[3]);
+                if (times.length != 2) {
+                    throw new IllegalArgumentException("Invalid event period");
+                }
+                task = new Event(fields[2], times[0], times[1]);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown task type");
@@ -136,10 +137,11 @@ public class Storage {
             return "T" + FIELD_SEPARATOR + status + FIELD_SEPARATOR + task.getDescription();
         } else if (task instanceof Deadline deadline) {
             return "D" + FIELD_SEPARATOR + status + FIELD_SEPARATOR + task.getDescription()
-                    + FIELD_SEPARATOR + deadline.getBy();
+                    + FIELD_SEPARATOR + DateTimeParser.formatForStorage(deadline.getBy());
         } else if (task instanceof Event event) {
             return "E" + FIELD_SEPARATOR + status + FIELD_SEPARATOR + task.getDescription()
-                    + FIELD_SEPARATOR + event.getWhen();
+                    + FIELD_SEPARATOR + DateTimeParser.formatForStorage(event.getFrom())
+                    + EVENT_TIME_SEPARATOR + DateTimeParser.formatForStorage(event.getTo());
         }
         throw new IllegalArgumentException("Unsupported task type");
     }

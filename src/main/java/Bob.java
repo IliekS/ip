@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.time.format.DateTimeParseException;
 
 /**
  * Coordinates the components of the Bob chatbot.
@@ -8,8 +9,11 @@ public class Bob {
     private static final String UNMARK_USAGE = "unmark <task_number>";
     private static final String DELETE_USAGE = "delete <task_number>";
     private static final String TODO_USAGE = "todo <description>";
-    private static final String DEADLINE_USAGE = "deadline <description> /by <deadline>";
-    private static final String EVENT_USAGE = "event <description> /from <start> /to <end>";
+    private static final String DEADLINE_USAGE =
+            "deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>";
+    private static final String EVENT_USAGE = "event <description> "
+            + "/from <dd/MM/yyyy or dd/MM/yyyy HHmm> "
+            + "/to <dd/MM/yyyy or dd/MM/yyyy HHmm>";
 
     private final Parser parser;
     private final Storage storage;
@@ -191,7 +195,11 @@ public class Bob {
             ui.showUsage(DEADLINE_USAGE);
             return;
         }
-        addTask(new Deadline(description, by));
+        try {
+            addTask(new Deadline(description, by));
+        } catch (DateTimeParseException exception) {
+            ui.showInvalidDateTime();
+        }
     }
 
     /**
@@ -213,7 +221,11 @@ public class Bob {
             ui.showUsage(EVENT_USAGE);
             return;
         }
-        addTask(new Event(description, from, to));
+        try {
+            addTask(new Event(description, from, to));
+        } catch (DateTimeParseException exception) {
+            ui.showInvalidDateTime();
+        }
     }
 
     /**
