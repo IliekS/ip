@@ -49,7 +49,12 @@ jar {
 }
 
 shadowJar {
-    archiveFileName = 'duke.jar'
+    archiveFileName = 'bob.jar'
+    mergeServiceFiles()
+
+    manifest {
+        attributes 'Main-Class': application.mainClass.get()
+    }
 }
 
 run {
