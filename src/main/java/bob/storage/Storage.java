@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class Storage {
             String line = lines.get(i);
             try {
                 loadedTasks.add(parseTask(line));
-            } catch (IllegalArgumentException exception) {
+            } catch (IllegalArgumentException | DateTimeParseException exception) {
                 System.err.println("Warning: skipped invalid data on line " + (i + 1) + ".");
             }
         }

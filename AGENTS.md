@@ -28,6 +28,16 @@ Unless the user says otherwise, assume that you are assisting a student working 
 
 Ensure that Java 25 is used when running the application or build tasks. On macOS, use `sdk use java 25.0.3.fx-zulu` to switch to Java 25 if needed.
 
+## JUnit testing after code changes
+
+Maintain JUnit tests for approximately the top 50% highest-value methods in the codebase. Prioritize methods containing complex logic, core application behavior, data parsing or persistence, important state changes, and error handling. Do not add low-value tests solely to increase the method count.
+
+After every code update:
+
+1. Review the affected classes and identify whether their JUnit tests need to be added or updated to maintain this coverage target.
+2. Add or update tests for changed behavior, new edge cases, and regressions before considering the code update complete.
+3. Run the complete JUnit suite using Gradle and report the result. If a JUnit test fails, stop and report the failure before making further changes.
+
 ## UI testing after code changes
 
 After every code update:
