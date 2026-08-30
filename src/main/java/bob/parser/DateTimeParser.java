@@ -37,9 +37,9 @@ public class DateTimeParser {
     /**
      * Parses a date or date-time using Bob's accepted input formats.
      *
-     * @param value date or date-time text supplied by the user
-     * @return a LocalDate for a date, or LocalDateTime for a date with time
-     * @throws DateTimeParseException if the value is not a valid supported date or date-time
+     * @param value Date or date-time text supplied by the user.
+     * @return A LocalDate for a date, or LocalDateTime for a date with time.
+     * @throws DateTimeParseException If the value is not a valid supported date or date-time.
      */
     public static TemporalAccessor parse(String value) {
         try {
@@ -52,8 +52,8 @@ public class DateTimeParser {
     /**
      * Formats a date or date-time for display to the user.
      *
-     * @param value date or date-time to format
-     * @return formatted date or date-time
+     * @param value Date or date-time to format.
+     * @return Formatted date or date-time.
      */
     public static String formatForDisplay(TemporalAccessor value) {
         if (value instanceof LocalDateTime dateTime) {
@@ -65,8 +65,8 @@ public class DateTimeParser {
     /**
      * Formats a date or date-time for storage using an accepted input format.
      *
-     * @param value date or date-time to format
-     * @return storage representation of the value
+     * @param value Date or date-time to format.
+     * @return Storage representation of the value.
      */
     public static String formatForStorage(TemporalAccessor value) {
         if (value instanceof LocalDateTime dateTime) {

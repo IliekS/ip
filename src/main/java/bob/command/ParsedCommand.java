@@ -10,8 +10,8 @@ public class ParsedCommand {
     /**
      * Creates a parsed command.
      *
-     * @param command recognized command type
-     * @param arguments text following the command word
+     * @param command Recognized command type.
+     * @param arguments Text following the command word.
      */
     public ParsedCommand(Command command, String arguments) {
         this.command = command;
