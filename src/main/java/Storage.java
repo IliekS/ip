@@ -1,0 +1,137 @@
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Loads and saves Bob's tasks in a text file.
+ */
+public class Storage {
+    private static final String FIELD_SEPARATOR = " | ";
+    private static final String EVENT_TIME_SEPARATOR = " to: ";
+
+    private final Path filePath;
+
+    /**
+     * Creates storage that uses a path relative to the application's working directory.
+     *
+     * @param firstPathPart first directory or file name in the relative path
+     * @param remainingPathParts remaining directory or file names in the relative path
+     */
+    public Storage(String firstPathPart, String... remainingPathParts) {
+        this.filePath = Path.of(firstPathPart, remainingPathParts);
+    }
+
+    /**
+     * Loads all valid tasks from the data file.
+     * Missing files are treated as an empty task list.
+     *
+     * @return tasks read from the data file
+     * @throws IOException if the file cannot be read
+     */
+    public ArrayList<Task> load() throws IOException {
+        ArrayList<Task> loadedTasks = new ArrayList<>();
+        if (!Files.exists(filePath)) {
+            return loadedTasks;
+        }
+
+        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i);
+            try {
+                loadedTasks.add(parseTask(line));
+            } catch (IllegalArgumentException exception) {
+                System.err.println("Warning: skipped invalid data on line " + (i + 1) + ".");
+            }
+        }
+        return loadedTasks;
+    }
+
+    /**
+     * Saves all tasks, creating the data directory when necessary.
+     *
+     * @param tasks tasks to save
+     * @throws IOException if the data file cannot be written
+     */
+    public void save(List<Task> tasks) throws IOException {
+        Path parentDirectory = filePath.getParent();
+        if (parentDirectory != null) {
+            Files.createDirectories(parentDirectory);
+        }
+
+        ArrayList<String> lines = new ArrayList<>();
+        for (Task task : tasks) {
+            lines.add(formatTask(task));
+        }
+        Files.write(filePath, lines, StandardCharsets.UTF_8);
+    }
+
+    private Task parseTask(String line) {
+        String[] fields = line.split(" \\| ", -1);
+        if (fields.length < 3) {
+            throw new IllegalArgumentException("Not enough fields");
+        }
+
+        Task task;
+        switch (fields[0]) {
+            case "T":
+                requireFieldCount(fields, 3);
+                task = new Todo(fields[2]);
+                break;
+            case "D":
+                requireFieldCount(fields, 4);
+                task = new Deadline(fields[2], fields[3]);
+                break;
+            case "E":
+                requireFieldCount(fields, 4);
+                String[] times = fields[3].split(EVENT_TIME_SEPARATOR, 2);
+                task = times.length == 2
+                        ? new Event(fields[2], times[0], times[1])
+                        : new Event(fields[2], fields[3]);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown task type");
+        }
+
+        if (parseDoneStatus(fields[1])) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
+    private String formatTask(Task task) {
+        String status = task.isDone() ? "1" : "0";
+        if (task instanceof Todo) {
+            return "T" + FIELD_SEPARATOR + status + FIELD_SEPARATOR + task.getDescription();
+        } else if (task instanceof Deadline deadline) {
+            return "D" + FIELD_SEPARATOR + status + FIELD_SEPARATOR + task.getDescription()
+                    + FIELD_SEPARATOR + deadline.getBy();
+        } else if (task instanceof Event event) {
+            return "E" + FIELD_SEPARATOR + status + FIELD_SEPARATOR + task.getDescription()
+                    + FIELD_SEPARATOR + event.getWhen();
+        }
+        throw new IllegalArgumentException("Unsupported task type");
+    }
+
+    private boolean parseDoneStatus(String status) {
+        if (status.equals("1")) {
+            return true;
+        } else if (status.equals("0")) {
+            return false;
+        }
+        throw new IllegalArgumentException("Invalid task status");
+    }
+
+    private void requireFieldCount(String[] fields, int expectedCount) {
+        if (fields.length != expectedCount) {
+            throw new IllegalArgumentException("Incorrect number of fields");
+        }
+        for (String field : fields) {
+            if (field.isEmpty()) {
+                throw new IllegalArgumentException("Empty field");
+            }
+        }
+    }
+}
