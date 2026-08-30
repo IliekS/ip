@@ -86,7 +86,7 @@ def require_java_25(javac_command: str) -> None:
 
 def compile_program(project_root: Path, output_directory: Path, javac_command: str) -> None:
     """Compiles all Java source files so tests never use stale class files."""
-    source_files = sorted((project_root / "src" / "main" / "java").glob("*.java"))
+    source_files = sorted((project_root / "src" / "main" / "java").rglob("*.java"))
     if not source_files:
         raise ValueError("No Java source files found in src/main/java")
     output_directory.mkdir(parents=True, exist_ok=True)
@@ -152,7 +152,7 @@ def main() -> int:
     """Compiles Bob and runs every recorded UI test case in sequence."""
     parser = argparse.ArgumentParser(description="Run console UI tests for Bob.")
     parser.add_argument("--plan", default="test/ui-test-plan.md", help="path to the Markdown test plan")
-    parser.add_argument("--main", default="Bob", help="fully qualified Java main class")
+    parser.add_argument("--main", default="bob.Bob", help="fully qualified Java main class")
     arguments = parser.parse_args()
 
     project_root = Path.cwd()

@@ -1,4 +1,8 @@
+package bob.task;
+
 import java.time.temporal.TemporalAccessor;
+
+import bob.parser.DateTimeParser;
 
 /**
  * Represents a task scheduled between a start and end date or date-time.

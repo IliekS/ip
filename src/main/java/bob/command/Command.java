@@ -1,3 +1,5 @@
+package bob.command;
+
 /**
  * Represents a command that Bob can recognize.
  */

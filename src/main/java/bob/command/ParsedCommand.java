@@ -1,3 +1,5 @@
+package bob.command;
+
 /**
  * Stores a recognized command together with the text following its command word.
  */

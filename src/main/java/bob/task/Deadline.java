@@ -1,4 +1,8 @@
+package bob.task;
+
 import java.time.temporal.TemporalAccessor;
+
+import bob.parser.DateTimeParser;
 
 /**
  * Represents a task that must be completed by a specified date or date-time.

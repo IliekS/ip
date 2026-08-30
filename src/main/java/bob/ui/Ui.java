@@ -1,4 +1,9 @@
+package bob.ui;
+
 import java.util.Scanner;
+
+import bob.task.Task;
+import bob.task.TaskList;
 
 /**
  * Handles console input and output for Bob.

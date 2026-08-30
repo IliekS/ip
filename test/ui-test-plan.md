@@ -43,14 +43,14 @@ ____________________________________________________________
 ____________________________________________________________
 
 Got it. I've added this task:
-[D][ ] return book (by: Dec 02 2019 at 1800hrs)
+[D][ ] return book (by: Dec 02 2019 1800hrs)
 Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________
 
 Got it. I've added this task:
-[E][ ] project meeting (from: Dec 03 2019 at 1400hrs to: Dec 03 2019 at 1600hrs)
+[E][ ] project meeting (from: Dec 03 2019 1400hrs to: Dec 03 2019 1600hrs)
 Now you have 3 tasks in the list.
 ____________________________________________________________
 
@@ -70,8 +70,8 @@ ____________________________________________________________
 
 Here are the tasks in your list:
 1.[T][ ] borrow book
-2.[D][ ] return book (by: Dec 02 2019 at 1800hrs)
-3.[E][ ] project meeting (from: Dec 03 2019 at 1400hrs to: Dec 03 2019 at 1600hrs)
+2.[D][ ] return book (by: Dec 02 2019 1800hrs)
+3.[E][ ] project meeting (from: Dec 03 2019 1400hrs to: Dec 03 2019 1600hrs)
 ____________________________________________________________
 
 ____________________________________________________________

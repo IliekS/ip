@@ -1,5 +1,18 @@
+package bob;
+
 import java.io.IOException;
 import java.time.format.DateTimeParseException;
+
+import bob.command.Command;
+import bob.command.ParsedCommand;
+import bob.parser.Parser;
+import bob.storage.Storage;
+import bob.task.Deadline;
+import bob.task.Event;
+import bob.task.Task;
+import bob.task.TaskList;
+import bob.task.Todo;
+import bob.ui.Ui;
 
 /**
  * Coordinates the components of the Bob chatbot.

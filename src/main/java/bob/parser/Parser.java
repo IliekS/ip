@@ -1,3 +1,8 @@
+package bob.parser;
+
+import bob.command.Command;
+import bob.command.ParsedCommand;
+
 /**
  * Parses raw user input into commands and arguments.
  */

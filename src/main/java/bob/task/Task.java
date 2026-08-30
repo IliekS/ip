@@ -1,3 +1,5 @@
+package bob.task;
+
 /**
  * Represents a task stored by Bob.
  */
