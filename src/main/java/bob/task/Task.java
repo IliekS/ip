@@ -13,19 +13,23 @@ public abstract class Task {
     /**
      * Creates an incomplete task with the given description.
      *
-     * @param description the task description
+     * @param description The task description.
      */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
-    /** Marks this task as complete. */
+    /**
+     * Marks this task as complete.
+     */
     public void markAsDone() {
         isDone = true;
     }
 
-    /** Marks this task as incomplete. */
+    /**
+     * Marks this task as incomplete.
+     */
     public void markAsNotDone() {
         isDone = false;
     }
@@ -33,7 +37,7 @@ public abstract class Task {
     /**
      * Returns whether this task has been completed.
      *
-     * @return true if the task is complete
+     * @return True if the task is complete.
      */
     public boolean isDone() {
         return isDone;
@@ -42,7 +46,7 @@ public abstract class Task {
     /**
      * Returns the description entered for this task.
      *
-     * @return the task description
+     * @return The task description.
      */
     public String getDescription() {
         return description;
@@ -51,7 +55,7 @@ public abstract class Task {
     /**
      * Returns this task's status and description for display.
      *
-     * @return the formatted task text
+     * @return The formatted task text.
      */
     @Override
     public String toString() {

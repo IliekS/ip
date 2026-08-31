@@ -33,7 +33,9 @@ public class Bob {
     private final TaskList tasks;
     private final Ui ui;
 
-    /** Creates Bob with its UI, parser, task list, and default storage. */
+    /**
+     * Creates Bob with its UI, parser, task list, and default storage.
+     */
     public Bob() {
         this.ui = new Ui();
         this.parser = new Parser();
@@ -44,13 +46,15 @@ public class Bob {
     /**
      * Starts Bob and responds to commands until the user exits or input ends.
      *
-     * @param args command-line arguments, which are not used
+     * @param args Command-line arguments, which are not used.
      */
     public static void main(String[] args) {
         new Bob().run();
     }
 
-    /** Displays the welcome message and runs the command loop. */
+    /**
+     * Displays the welcome message and runs the command loop.
+     */
     public void run() {
         ui.showWelcome();
         while (ui.hasNextCommand()) {
@@ -67,8 +71,8 @@ public class Bob {
     /**
      * Executes one parsed command.
      *
-     * @param parsedCommand command type and arguments supplied by the user
-     * @return true if Bob should exit after executing the command
+     * @param parsedCommand Command type and arguments supplied by the user.
+     * @return True if Bob should exit after executing the command.
      */
     private boolean executeCommand(ParsedCommand parsedCommand) {
         switch (parsedCommand.getCommand()) {
@@ -105,8 +109,8 @@ public class Bob {
     /**
      * Exits when the bye command has no arguments.
      *
-     * @param arguments text following the bye command
-     * @return true when Bob should exit
+     * @param arguments Text following the bye command.
+     * @return True when Bob should exit.
      */
     private boolean exit(String arguments) {
         if (!arguments.isEmpty()) {
@@ -120,7 +124,7 @@ public class Bob {
     /**
      * Displays all tasks when the list command has no arguments.
      *
-     * @param arguments text following the list command
+     * @param arguments Text following the list command.
      */
     private void list(String arguments) {
         if (!arguments.isEmpty()) {
@@ -133,7 +137,7 @@ public class Bob {
     /**
      * Marks the task identified by the command argument as complete.
      *
-     * @param arguments task number supplied after the mark command
+     * @param arguments Task number supplied after the mark command.
      */
     private void mark(String arguments) {
         Integer taskNumber = parseTaskNumber(arguments, MARK_USAGE);
@@ -149,7 +153,7 @@ public class Bob {
     /**
      * Marks the task identified by the command argument as incomplete.
      *
-     * @param arguments task number supplied after the unmark command
+     * @param arguments Task number supplied after the unmark command.
      */
     private void unmark(String arguments) {
         Integer taskNumber = parseTaskNumber(arguments, UNMARK_USAGE);
@@ -165,7 +169,7 @@ public class Bob {
     /**
      * Removes the task identified by the command argument.
      *
-     * @param arguments task number supplied after the delete command
+     * @param arguments Task number supplied after the delete command.
      */
     private void delete(String arguments) {
         Integer taskNumber = parseTaskNumber(arguments, DELETE_USAGE);
@@ -180,7 +184,7 @@ public class Bob {
     /**
      * Creates a to-do task from the supplied description.
      *
-     * @param arguments description supplied after the todo command
+     * @param arguments Description supplied after the todo command.
      */
     private void createTodo(String arguments) {
         String description = arguments.trim();
@@ -194,7 +198,7 @@ public class Bob {
     /**
      * Creates a deadline task from its description and deadline text.
      *
-     * @param arguments text supplied after the deadline command
+     * @param arguments Text supplied after the deadline command.
      */
     private void createDeadline(String arguments) {
         int byIndex = arguments.indexOf(" /by ");
@@ -218,7 +222,7 @@ public class Bob {
     /**
      * Creates an event task from its description, start time, and end time.
      *
-     * @param arguments text supplied after the event command
+     * @param arguments Text supplied after the event command.
      */
     private void createEvent(String arguments) {
         int fromIndex = arguments.indexOf(" /from ");
@@ -244,7 +248,7 @@ public class Bob {
     /**
      * Adds a task, saves the updated list, and displays the result.
      *
-     * @param task task to add
+     * @param task Task to add.
      */
     private void addTask(Task task) {
         tasks.add(task);
@@ -255,9 +259,9 @@ public class Bob {
     /**
      * Parses and validates a one-based task number.
      *
-     * @param arguments task-number text to parse
-     * @param usage command format displayed when an argument is missing or malformed
-     * @return the valid one-based task number, or null when validation fails
+     * @param arguments Task-number text to parse.
+     * @param usage Command format displayed when an argument is missing or malformed.
+     * @return The valid one-based task number, or null when validation fails.
      */
     private Integer parseTaskNumber(String arguments, String usage) {
         if (arguments.isEmpty() || arguments.contains(" ")) {
@@ -266,7 +270,7 @@ public class Bob {
         }
         try {
             int taskNumber = Integer.parseInt(arguments);
-            if (!tasks.containsTaskNumber(taskNumber)) {
+            if (!tasks.hasTaskNumber(taskNumber)) {
                 ui.showInvalidTaskNumber();
                 return null;
             }
@@ -280,7 +284,7 @@ public class Bob {
     /**
      * Loads saved tasks, falling back to an empty task list when reading fails.
      *
-     * @return the loaded or empty task list
+     * @return The loaded or empty task list.
      */
     private TaskList loadTasks() {
         try {
@@ -291,7 +295,9 @@ public class Bob {
         }
     }
 
-    /** Saves the current task list and reports errors without terminating Bob. */
+    /**
+     * Saves the current task list and reports errors without terminating Bob.
+     */
     private void saveTasks() {
         try {
             storage.save(tasks.asList());

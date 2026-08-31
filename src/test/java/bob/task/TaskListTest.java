@@ -68,13 +68,13 @@ public class TaskListTest {
     }
 
     @Test
-    public void containsTaskNumber_boundaryValues_returnsExpectedResults() {
+    public void hasTaskNumber_boundaryValues_returnsExpectedResults() {
         TaskList tasks = new TaskList(List.of(new Todo("first"), new Todo("second")));
 
-        assertFalse(tasks.containsTaskNumber(0));
-        assertTrue(tasks.containsTaskNumber(1));
-        assertTrue(tasks.containsTaskNumber(2));
-        assertFalse(tasks.containsTaskNumber(3));
+        assertFalse(tasks.hasTaskNumber(0));
+        assertTrue(tasks.hasTaskNumber(1));
+        assertTrue(tasks.hasTaskNumber(2));
+        assertFalse(tasks.hasTaskNumber(3));
     }
 
     @Test

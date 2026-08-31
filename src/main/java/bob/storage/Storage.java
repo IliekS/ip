@@ -26,8 +26,8 @@ public class Storage {
     /**
      * Creates storage that uses a path relative to the application's working directory.
      *
-     * @param firstPathPart first directory or file name in the relative path
-     * @param remainingPathParts remaining directory or file names in the relative path
+     * @param firstPathPart First directory or file name in the relative path.
+     * @param remainingPathParts Remaining directory or file names in the relative path.
      */
     public Storage(String firstPathPart, String... remainingPathParts) {
         this.filePath = Path.of(firstPathPart, remainingPathParts);
@@ -36,7 +36,7 @@ public class Storage {
     /**
      * Creates storage inside the ip project for common application launch locations.
      *
-     * @return storage configured for Bob's data file
+     * @return Storage configured for Bob's data file.
      */
     public static Storage createDefaultStorage() {
         Path workingDirectory = Path.of("").toAbsolutePath();
@@ -53,8 +53,8 @@ public class Storage {
      * Loads all valid tasks from the data file.
      * Missing files are treated as an empty task list.
      *
-     * @return tasks read from the data file
-     * @throws IOException if the file cannot be read
+     * @return Tasks read from the data file.
+     * @throws IOException If the file cannot be read.
      */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> loadedTasks = new ArrayList<>();
@@ -77,8 +77,8 @@ public class Storage {
     /**
      * Saves all tasks, creating the data directory when necessary.
      *
-     * @param tasks tasks to save
-     * @throws IOException if the data file cannot be written
+     * @param tasks Tasks to save.
+     * @throws IOException If the data file cannot be written.
      */
     public void save(List<Task> tasks) throws IOException {
         Path parentDirectory = filePath.getParent();
@@ -96,9 +96,9 @@ public class Storage {
     /**
      * Converts one saved data line into a task.
      *
-     * @param line saved task data
-     * @return task represented by the line
-     * @throws IllegalArgumentException if the data is malformed
+     * @param line Saved task data.
+     * @return Task represented by the line.
+     * @throws IllegalArgumentException If the data is malformed.
      */
     private Task parseTask(String line) {
         String[] fields = line.split(" \\| ", -1);
@@ -137,8 +137,8 @@ public class Storage {
     /**
      * Converts a task into its saved data representation.
      *
-     * @param task task to format
-     * @return data line representing the task
+     * @param task Task to format.
+     * @return Data line representing the task.
      */
     private String formatTask(Task task) {
         String status = task.isDone() ? "1" : "0";
@@ -158,9 +158,9 @@ public class Storage {
     /**
      * Converts a saved completion-status field into a boolean.
      *
-     * @param status saved status value
-     * @return true for a completed task and false for an incomplete task
-     * @throws IllegalArgumentException if the status is neither 0 nor 1
+     * @param status Saved status value.
+     * @return True for a completed task and false for an incomplete task.
+     * @throws IllegalArgumentException If the status is neither 0 nor 1.
      */
     private boolean parseDoneStatus(String status) {
         if (status.equals("1")) {
@@ -174,9 +174,9 @@ public class Storage {
     /**
      * Verifies that a saved record has the expected number of non-empty fields.
      *
-     * @param fields fields parsed from a saved record
-     * @param expectedCount required number of fields
-     * @throws IllegalArgumentException if the record structure is invalid
+     * @param fields Fields parsed from a saved record.
+     * @param expectedCount Required number of fields.
+     * @throws IllegalArgumentException If the record structure is invalid.
      */
     private void requireFieldCount(String[] fields, int expectedCount) {
         if (fields.length != expectedCount) {

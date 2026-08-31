@@ -16,12 +16,16 @@ public class Ui {
 
     private final Scanner scanner;
 
-    /** Creates a UI that reads from standard input. */
+    /**
+     * Creates a UI that reads from standard input.
+     */
     public Ui() {
         this.scanner = new Scanner(System.in);
     }
 
-    /** Displays Bob's welcome banner and greeting. */
+    /**
+     * Displays Bob's welcome banner and greeting.
+     */
     public void showWelcome() {
         String banner = " ____        _     \n"
                 + "| __ )  ___ | |__  \n"
@@ -35,51 +39,80 @@ public class Ui {
         System.out.println();
     }
 
-    /** Returns whether another command is available from standard input. */
+    /**
+     * Returns whether another command is available from standard input.
+     *
+     * @return True if another command is available.
+     */
     public boolean hasNextCommand() {
         return scanner.hasNextLine();
     }
 
-    /** Returns the next command entered by the user. */
+    /**
+     * Returns the next command entered by the user.
+     *
+     * @return Next command.
+     */
     public String readCommand() {
         return scanner.nextLine();
     }
 
-    /** Displays the separator that appears before a command response. */
+    /**
+     * Displays the separator that appears before a command response.
+     */
     public void showCommandStart() {
         System.out.println(DIVIDER);
         System.out.println();
     }
 
-    /** Displays the separator that appears after a command response. */
+    /**
+     * Displays the separator that appears after a command response.
+     */
     public void showCommandEnd() {
         System.out.println(DIVIDER);
         System.out.println();
     }
 
-    /** Displays Bob's goodbye message. */
+    /**
+     * Displays Bob's goodbye message.
+     */
     public void showGoodbye() {
         System.out.println(BLUE + "Bye. Hope to see you again soon!" + RESET);
     }
 
-    /** Displays the required format for an incomplete command. */
+    /**
+     * Displays the required format for an incomplete command.
+     *
+     * @param format Command format to display.
+     */
     public void showUsage(String format) {
         System.out.println(BLUE + "Invalid command format. Use: " + format + RESET);
     }
 
-    /** Displays a message for an unrecognized command. */
+    /**
+     * Displays a message for an unrecognized command.
+     */
     public void showUnknownCommand() {
         System.out.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
     }
 
-    /** Displays a newly added task and the updated task count. */
+    /**
+     * Displays a newly added task and the updated task count.
+     *
+     * @param task Added task.
+     * @param taskCount Updated number of tasks.
+     */
     public void showAddedTask(Task task, int taskCount) {
         System.out.println(BLUE + "Got it. I've added this task:" + RESET);
         System.out.println(GREEN + task + RESET);
         System.out.println(BLUE + "Now you have " + taskCount + " tasks in the list." + RESET);
     }
 
-    /** Displays all tasks in their current order. */
+    /**
+     * Displays all tasks in their current order.
+     *
+     * @param tasks Tasks to display.
+     */
     public void showTaskList(TaskList tasks) {
         if (tasks.isEmpty()) {
             System.out.println(BLUE + "No tasks yet!" + RESET);
@@ -91,7 +124,12 @@ public class Ui {
         }
     }
 
-    /** Displays a task after its completion status changes. */
+    /**
+     * Displays a task after its completion status changes.
+     *
+     * @param task Updated task.
+     * @param isDone Whether the task is complete.
+     */
     public void showMarkedTask(Task task, boolean isDone) {
         String statusMessage = isDone
                 ? "I marked this task as done:"
@@ -100,35 +138,50 @@ public class Ui {
         System.out.println(GREEN + task + RESET);
     }
 
-    /** Displays a removed task and the updated task count. */
+    /**
+     * Displays a removed task and the updated task count.
+     *
+     * @param task Removed task.
+     * @param taskCount Updated number of tasks.
+     */
     public void showDeletedTask(Task task, int taskCount) {
         System.out.println(BLUE + "Noted. I've removed this task:" + RESET);
         System.out.println(GREEN + task + RESET);
         System.out.println(BLUE + "Now you have " + taskCount + " tasks in the list." + RESET);
     }
 
-    /** Displays a message for a task number outside the current list. */
+    /**
+     * Displays a message for a task number outside the current list.
+     */
     public void showInvalidTaskNumber() {
         System.out.println(BLUE + "Invalid task number." + RESET);
     }
 
-    /** Displays a message for a task number that is not an integer. */
+    /**
+     * Displays a message for a task number that is not an integer.
+     */
     public void showInvalidTaskNumberFormat() {
         System.out.println(BLUE + "Invalid task number format." + RESET);
     }
 
-    /** Displays the accepted date and date-time input formats. */
+    /**
+     * Displays the accepted date and date-time input formats.
+     */
     public void showInvalidDateTime() {
         System.out.println(BLUE + "Invalid date or time. Use dd/MM/yyyy or "
                 + "dd/MM/yyyy HHmm with a 24-hour time." + RESET);
     }
 
-    /** Reports that saved tasks could not be loaded. */
+    /**
+     * Reports that saved tasks could not be loaded.
+     */
     public void showLoadingError() {
         System.err.println("Warning: could not load tasks from the data file.");
     }
 
-    /** Reports that tasks could not be saved. */
+    /**
+     * Reports that tasks could not be saved.
+     */
     public void showSavingError() {
         System.err.println("Warning: could not save tasks to the data file.");
     }

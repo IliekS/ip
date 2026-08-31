@@ -10,8 +10,8 @@ public class Parser {
     /**
      * Separates the first command word from its remaining arguments.
      *
-     * @param input raw command entered by the user
-     * @return the parsed command and arguments
+     * @param input Raw command entered by the user.
+     * @return The parsed command and arguments.
      */
     public ParsedCommand parse(String input) {
         String trimmedInput = input.trim();
@@ -28,8 +28,8 @@ public class Parser {
     /**
      * Converts a command word into a supported command type.
      *
-     * @param commandWord first word of the user's input
-     * @return the matching command, or UNKNOWN when no command matches
+     * @param commandWord First word of the user's input.
+     * @return The matching command, or UNKNOWN when no command matches.
      */
     private Command parseCommandWord(String commandWord) {
         switch (commandWord) {

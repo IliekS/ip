@@ -14,9 +14,9 @@ public class Event extends Task {
     /**
      * Creates an event task and parses its start and end values.
      *
-     * @param description the event description
-     * @param from start in dd/MM/yyyy or dd/MM/yyyy HHmm format
-     * @param to end in dd/MM/yyyy or dd/MM/yyyy HHmm format
+     * @param description The event description.
+     * @param from Start in dd/MM/yyyy or dd/MM/yyyy HHmm format.
+     * @param to End in dd/MM/yyyy or dd/MM/yyyy HHmm format.
      */
     public Event(String description, String from, String to) {
         super(description);
@@ -27,7 +27,7 @@ public class Event extends Task {
     /**
      * Returns the parsed event start.
      *
-     * @return start stored as LocalDate or LocalDateTime
+     * @return Start stored as LocalDate or LocalDateTime.
      */
     public TemporalAccessor getFrom() {
         return from;
@@ -36,7 +36,7 @@ public class Event extends Task {
     /**
      * Returns the parsed event end.
      *
-     * @return end stored as LocalDate or LocalDateTime
+     * @return End stored as LocalDate or LocalDateTime.
      */
     public TemporalAccessor getTo() {
         return to;

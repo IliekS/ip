@@ -13,8 +13,8 @@ public class Deadline extends Task {
     /**
      * Creates a deadline task and parses its deadline value.
      *
-     * @param description the task description
-     * @param by deadline in dd/MM/yyyy or dd/MM/yyyy HHmm format
+     * @param description The task description.
+     * @param by Deadline in dd/MM/yyyy or dd/MM/yyyy HHmm format.
      */
     public Deadline(String description, String by) {
         super(description);
@@ -24,7 +24,7 @@ public class Deadline extends Task {
     /**
      * Returns the parsed deadline.
      *
-     * @return deadline stored as LocalDate or LocalDateTime
+     * @return Deadline stored as LocalDate or LocalDateTime.
      */
     public TemporalAccessor getBy() {
         return by;
