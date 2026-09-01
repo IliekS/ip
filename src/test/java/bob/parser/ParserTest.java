@@ -18,6 +18,7 @@ public class ParserTest {
         assertAll(
                 () -> assertEquals(Command.BYE, parser.parse("bye").getCommand()),
                 () -> assertEquals(Command.LIST, parser.parse("list").getCommand()),
+                () -> assertEquals(Command.FIND, parser.parse("find book").getCommand()),
                 () -> assertEquals(Command.MARK, parser.parse("mark 1").getCommand()),
                 () -> assertEquals(Command.UNMARK, parser.parse("unmark 1").getCommand()),
                 () -> assertEquals(Command.DELETE, parser.parse("delete 1").getCommand()),

@@ -37,6 +37,8 @@ public class Parser {
                 return Command.BYE;
             case "list":
                 return Command.LIST;
+            case "find":
+                return Command.FIND;
             case "mark":
                 return Command.MARK;
             case "unmark":

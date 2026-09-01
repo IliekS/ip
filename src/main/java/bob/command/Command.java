@@ -6,6 +6,7 @@ package bob.command;
 public enum Command {
     BYE,
     LIST,
+    FIND,
     MARK,
     UNMARK,
     DELETE,

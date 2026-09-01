@@ -125,6 +125,18 @@ public class Ui {
     }
 
     /**
+     * Displays tasks matching a find command in their original order.
+     *
+     * @param tasks Matching tasks to display.
+     */
+    public void showMatchingTasks(TaskList tasks) {
+        System.out.println(BLUE + "Here are the matching tasks in your list:" + RESET);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(GREEN + (i + 1) + "." + tasks.get(i + 1) + RESET);
+        }
+    }
+
+    /**
      * Displays a task after its completion status changes.
      *
      * @param task Updated task.
