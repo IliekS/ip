@@ -1,0 +1,6 @@
+.label {
+    -fx-background-color: #d9ffe2;
+    -fx-background-radius: 1em;
+    -fx-border-radius: 1em;
+}
+.reply-label { -fx-background-color: #d7ebff; }
