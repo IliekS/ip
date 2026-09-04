@@ -38,10 +38,21 @@ public class Bob {
      * Creates Bob with its UI, parser, task list, and default storage.
      */
     public Bob() {
-        this.ui = new Ui();
+        this(new Ui(), Storage.createDefaultStorage());
+    }
+
+    /** Creates Bob with the supplied UI and storage components. */
+    public Bob(Ui ui, Storage storage) {
+        this.ui = ui;
         this.parser = new Parser();
-        this.storage = Storage.createDefaultStorage();
+        this.storage = storage;
         this.tasks = loadTasks();
+    }
+
+    /** Processes one command and returns Bob's textual response. */
+    public boolean respond(String input) {
+        ParsedCommand parsedCommand = parser.parse(input);
+        return executeCommand(parsedCommand);
     }
 
     /**

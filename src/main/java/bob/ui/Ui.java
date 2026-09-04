@@ -1,6 +1,7 @@
 package bob.ui;
 
 import java.util.Scanner;
+import java.io.PrintStream;
 
 import bob.task.Task;
 import bob.task.TaskList;
@@ -15,28 +16,27 @@ public class Ui {
     private static final String RESET = "\u001B[0m";
 
     private final Scanner scanner;
+    private final PrintStream output;
 
     /**
      * Creates a UI that reads from standard input.
      */
     public Ui() {
-        this.scanner = new Scanner(System.in);
+        this(new Scanner(System.in), System.out);
+    }
+
+    /** Creates a UI using the supplied input and output streams. */
+    public Ui(Scanner scanner, PrintStream output) {
+        this.scanner = scanner;
+        this.output = output;
     }
 
     /**
      * Displays Bob's welcome banner and greeting.
      */
     public void showWelcome() {
-        String banner = " ____        _     \n"
-                + "| __ )  ___ | |__  \n"
-                + "|  _ \\ / _ \\| '_ \\ \n"
-                + "| |_) | (_) | |_) |\n"
-                + "|____/ \\___/|_.__/ \n";
-        System.out.println(banner);
-        System.out.println(BLUE + "Hello! I'm Bob.");
-        System.out.println("What can I do for you?" + RESET);
-        System.out.println(DIVIDER);
-        System.out.println();
+        output.println(BLUE + "Hello! I'm Bob.");
+        output.println("What can I do for you?" + RESET);
     }
 
     /**
@@ -61,23 +61,23 @@ public class Ui {
      * Displays the separator that appears before a command response.
      */
     public void showCommandStart() {
-        System.out.println(DIVIDER);
-        System.out.println();
+        output.println(DIVIDER);
+        output.println();
     }
 
     /**
      * Displays the separator that appears after a command response.
      */
     public void showCommandEnd() {
-        System.out.println(DIVIDER);
-        System.out.println();
+        output.println(DIVIDER);
+        output.println();
     }
 
     /**
      * Displays Bob's goodbye message.
      */
     public void showGoodbye() {
-        System.out.println(BLUE + "Bye. Hope to see you again soon!" + RESET);
+        output.println(BLUE + "Bye. Hope to see you again soon!" + RESET);
     }
 
     /**
@@ -86,14 +86,14 @@ public class Ui {
      * @param format Command format to display.
      */
     public void showUsage(String format) {
-        System.out.println(BLUE + "Invalid command format. Use: " + format + RESET);
+        output.println(BLUE + "Invalid command format. Use: " + format + RESET);
     }
 
     /**
      * Displays a message for an unrecognized command.
      */
     public void showUnknownCommand() {
-        System.out.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
+        output.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
     }
 
     /**
@@ -103,9 +103,9 @@ public class Ui {
      * @param taskCount Updated number of tasks.
      */
     public void showAddedTask(Task task, int taskCount) {
-        System.out.println(BLUE + "Got it. I've added this task:" + RESET);
-        System.out.println(GREEN + task + RESET);
-        System.out.println(BLUE + "Now you have " + taskCount + " tasks in the list." + RESET);
+        output.println(BLUE + "Got it. I've added this task:" + RESET);
+        output.println(GREEN + task + RESET);
+        output.println(BLUE + "Now you have " + taskCount + " tasks in the list." + RESET);
     }
 
     /**
@@ -115,12 +115,12 @@ public class Ui {
      */
     public void showTaskList(TaskList tasks) {
         if (tasks.isEmpty()) {
-            System.out.println(BLUE + "No tasks yet!" + RESET);
+            output.println(BLUE + "No tasks yet!" + RESET);
             return;
         }
-        System.out.println(BLUE + "Here are the tasks in your list:" + RESET);
+        output.println(BLUE + "Here are the tasks in your list:" + RESET);
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(GREEN + (i + 1) + "." + tasks.get(i + 1) + RESET);
+            output.println(GREEN + (i + 1) + "." + tasks.get(i + 1) + RESET);
         }
     }
 
@@ -130,9 +130,9 @@ public class Ui {
      * @param tasks Matching tasks to display.
      */
     public void showMatchingTasks(TaskList tasks) {
-        System.out.println(BLUE + "Here are the matching tasks in your list:" + RESET);
+        output.println(BLUE + "Here are the matching tasks in your list:" + RESET);
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println(GREEN + (i + 1) + "." + tasks.get(i + 1) + RESET);
+            output.println(GREEN + (i + 1) + "." + tasks.get(i + 1) + RESET);
         }
     }
 
@@ -146,8 +146,8 @@ public class Ui {
         String statusMessage = isDone
                 ? "I marked this task as done:"
                 : "I marked this task as not done:";
-        System.out.println(BLUE + statusMessage + RESET);
-        System.out.println(GREEN + task + RESET);
+        output.println(BLUE + statusMessage + RESET);
+        output.println(GREEN + task + RESET);
     }
 
     /**
@@ -157,30 +157,30 @@ public class Ui {
      * @param taskCount Updated number of tasks.
      */
     public void showDeletedTask(Task task, int taskCount) {
-        System.out.println(BLUE + "Noted. I've removed this task:" + RESET);
-        System.out.println(GREEN + task + RESET);
-        System.out.println(BLUE + "Now you have " + taskCount + " tasks in the list." + RESET);
+        output.println(BLUE + "Noted. I've removed this task:" + RESET);
+        output.println(GREEN + task + RESET);
+        output.println(BLUE + "Now you have " + taskCount + " tasks in the list." + RESET);
     }
 
     /**
      * Displays a message for a task number outside the current list.
      */
     public void showInvalidTaskNumber() {
-        System.out.println(BLUE + "Invalid task number." + RESET);
+        output.println(BLUE + "Invalid task number." + RESET);
     }
 
     /**
      * Displays a message for a task number that is not an integer.
      */
     public void showInvalidTaskNumberFormat() {
-        System.out.println(BLUE + "Invalid task number format." + RESET);
+        output.println(BLUE + "Invalid task number format." + RESET);
     }
 
     /**
      * Displays the accepted date and date-time input formats.
      */
     public void showInvalidDateTime() {
-        System.out.println(BLUE + "Invalid date or time. Use dd/MM/yyyy or "
+        output.println(BLUE + "Invalid date or time. Use dd/MM/yyyy or "
                 + "dd/MM/yyyy HHmm with a 24-hour time." + RESET);
     }
 
@@ -188,13 +188,13 @@ public class Ui {
      * Reports that saved tasks could not be loaded.
      */
     public void showLoadingError() {
-        System.err.println("Warning: could not load tasks from the data file.");
+        output.println("Warning: could not load tasks from the data file.");
     }
 
     /**
      * Reports that tasks could not be saved.
      */
     public void showSavingError() {
-        System.err.println("Warning: could not save tasks to the data file.");
+        output.println("Warning: could not save tasks to the data file.");
     }
 }

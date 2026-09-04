@@ -1,0 +1,4 @@
+.root { -fx-background-color: #edfff2; }
+.text-field { -fx-font-size: 16px; }
+.button { -fx-background-color: mediumspringgreen; -fx-font-size: 16px; }
+.scroll-pane, .scroll-pane .viewport { -fx-background-color: transparent; }
