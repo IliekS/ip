@@ -245,22 +245,17 @@ public class Bob {
      * @param arguments Text supplied after the deadline command.
      */
     private void createDeadline(String arguments) {
-        int byIndex = arguments.indexOf(" /by ");
-        if (byIndex <= 0) {
-            ui.showUsage(DEADLINE_USAGE);
-            return;
-        }
-        String description = arguments.substring(0, byIndex).trim();
-        String by = arguments.substring(byIndex + " /by ".length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            ui.showUsage(DEADLINE_USAGE);
-            return;
-        }
+        Deadline deadline;
         try {
-            addTask(new Deadline(description, by));
+            deadline = parser.parseDeadline(arguments);
         } catch (DateTimeParseException exception) {
             ui.showInvalidDateTime();
+            return;
+        } catch (IllegalArgumentException exception) {
+            ui.showUsage(DEADLINE_USAGE);
+            return;
         }
+        addTask(deadline);
     }
 
     /**
