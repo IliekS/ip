@@ -2,9 +2,15 @@ package bob.parser;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 
 import bob.command.Command;
 import bob.command.ParsedCommand;
+import bob.task.Deadline;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -12,6 +18,31 @@ import org.junit.jupiter.api.Test;
  */
 public class ParserTest {
     private final Parser parser = new Parser();
+
+    @Test
+    public void parseDeadline_validArguments_preservesDescriptionAndParsesDate() {
+        Deadline deadline = parser.parseDeadline("  return   book  /by  2/12/2019  ");
+        assertEquals("return   book", deadline.getDescription());
+        assertEquals(LocalDate.of(2019, 12, 2), deadline.getBy());
+        assertEquals(LocalDateTime.of(2019, 12, 2, 18, 0),
+                parser.parseDeadline("return book /by 2/12/2019 1800").getBy());
+    }
+
+    @Test
+    public void parseDeadline_missingArguments_throwsFormatException() {
+        for (String input : new String[] {"", "read", " /by 2/12/2019", "  /by 2/12/2019",
+                "read /by ", "read /by   ", "read /by", "read/by 2/12/2019"}) {
+            assertThrows(IllegalArgumentException.class, () -> parser.parseDeadline(input), input);
+        }
+    }
+
+    @Test
+    public void parseDeadline_invalidDateOrRepeatedSeparator_throwsDateException() {
+        for (String input : new String[] {"read /by 31/02/2019", "read /by tomorrow",
+                "read /by 2/12/2019 2500", "read /by 2/12/2019 /by 3/12/2019"}) {
+            assertThrows(DateTimeParseException.class, () -> parser.parseDeadline(input), input);
+        }
+    }
 
     @Test
     public void parse_supportedCommandWords_returnsMatchingCommands() {

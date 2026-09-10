@@ -100,6 +100,38 @@ public class StorageTest {
     }
 
     @Test
+    public void load_completedTimedTasks_restoresCompletionStatus() throws IOException {
+        Files.write(temporaryDirectory.resolve("bob.txt"), List.of(
+                "D | 1 | return book | 02/12/2019",
+                "E | 1 | meeting | 03/12/2019 1400 to 03/12/2019 1600"), StandardCharsets.UTF_8);
+
+        ArrayList<Task> tasks = createStorage("bob.txt").load();
+
+        assertEquals(2, tasks.size());
+        assertTrue(tasks.get(0) instanceof Deadline);
+        assertTrue(tasks.get(1) instanceof Event);
+        assertTrue(tasks.get(0).isDone());
+        assertTrue(tasks.get(1).isDone());
+    }
+
+    @Test
+    public void load_invalidFieldStructures_continuesToNextValidRecord() throws IOException {
+        Files.write(temporaryDirectory.resolve("bob.txt"), List.of(
+                "T | 0",
+                "T | 0 | extra field | unexpected",
+                "D | 0 | missing deadline",
+                "E | 0 | missing period",
+                "T | 0 | ",
+                "T | 0 | valid task"), StandardCharsets.UTF_8);
+
+        ArrayList<Task> tasks = createStorage("bob.txt").load();
+
+        assertEquals(1, tasks.size());
+        assertEquals("valid task", tasks.get(0).getDescription());
+        assertFalse(tasks.get(0).isDone());
+    }
+
+    @Test
     public void save_unsupportedTaskType_exceptionThrown() {
         Storage storage = createStorage("bob.txt");
         Task unsupportedTask = new Task("unsupported") {
@@ -110,6 +142,9 @@ public class StorageTest {
         assertFalse(Files.exists(temporaryDirectory.resolve("bob.txt")));
     }
 
+    /**
+     * Creates storage for a test file in the temporary directory.
+     */
     private Storage createStorage(String fileName) {
         return new Storage(temporaryDirectory.toString(), fileName);
     }
