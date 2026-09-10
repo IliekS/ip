@@ -41,7 +41,12 @@ public class Bob {
         this(new Ui(), Storage.createDefaultStorage());
     }
 
-    /** Creates Bob with the supplied UI and storage components. */
+    /**
+     * Creates Bob with the supplied UI and storage components.
+     *
+     * @param ui Component that displays responses.
+     * @param storage Component that persists tasks.
+     */
     public Bob(Ui ui, Storage storage) {
         this.ui = ui;
         this.parser = new Parser();
@@ -49,7 +54,12 @@ public class Bob {
         this.tasks = loadTasks();
     }
 
-    /** Processes one command and returns Bob's textual response. */
+    /**
+     * Processes one command and displays its response through the configured UI.
+     *
+     * @param input Command text entered by the user.
+     * @return True if Bob should exit.
+     */
     public boolean respond(String input) {
         ParsedCommand parsedCommand = parser.parse(input);
         return executeCommand(parsedCommand);
@@ -115,6 +125,8 @@ public class Bob {
                 createEvent(parsedCommand.getArguments());
                 break;
             default:
+                // Every recognized enum value must have its own handler above.
+                assert parsedCommand.getCommand() == Command.UNKNOWN : "Recognized command has no handler";
                 ui.showUnknownCommand();
                 break;
         }
