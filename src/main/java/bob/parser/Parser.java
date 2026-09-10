@@ -58,6 +58,8 @@ public class Parser {
      * @return The matching command, or UNKNOWN when no command matches.
      */
     private Command parseCommandWord(String commandWord) {
+        // parse() handles blank input before extracting the first word.
+        assert commandWord != null && !commandWord.isEmpty() : "Command word must already be extracted";
         switch (commandWord) {
             case "bye":
                 return Command.BYE;

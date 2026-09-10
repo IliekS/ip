@@ -122,6 +122,8 @@ public class Bob {
                 createEvent(parsedCommand.getArguments());
                 break;
             default:
+                // Every recognized enum value must have its own handler above.
+                assert parsedCommand.getCommand() == Command.UNKNOWN : "Recognized command has no handler";
                 ui.showUnknownCommand();
                 break;
         }

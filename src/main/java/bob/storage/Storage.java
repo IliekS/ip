@@ -186,6 +186,8 @@ public class Storage {
      * @throws IllegalArgumentException If the record structure is invalid.
      */
     private void requireFieldCount(String[] fields, int expectedCount) {
+        // All supported record schemas have three base fields and at most one time field.
+        assert expectedCount == 3 || expectedCount == 4 : "Unsupported internal task record schema";
         if (fields.length != expectedCount) {
             throw new IllegalArgumentException("Incorrect number of fields");
         }

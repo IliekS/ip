@@ -33,6 +33,7 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    enableAssertions = true
 
     testLogging {
         events 'passed', 'skipped', 'failed'
@@ -46,7 +47,7 @@ test {
 }
 
 application {
-    mainClass = 'bob.ui.Main'
+    mainClass = 'bob.Launcher'
 }
 
 jar {
