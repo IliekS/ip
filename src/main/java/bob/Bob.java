@@ -43,9 +43,6 @@ public class Bob {
 
     /**
      * Creates Bob with the supplied UI and storage components.
-     *
-     * @param ui Component that displays responses.
-     * @param storage Component that persists tasks.
      */
     public Bob(Ui ui, Storage storage) {
         this.ui = ui;
@@ -181,14 +178,7 @@ public class Bob {
      * @param arguments Task number supplied after the mark command.
      */
     private void mark(String arguments) {
-        Integer taskNumber = parseTaskNumber(arguments, MARK_USAGE);
-        if (taskNumber == null) {
-            return;
-        }
-        Task task = tasks.get(taskNumber);
-        task.markAsDone();
-        saveTasks();
-        ui.showMarkedTask(task, true);
+        updateTaskStatus(arguments, true);
     }
 
     /**
@@ -197,14 +187,29 @@ public class Bob {
      * @param arguments Task number supplied after the unmark command.
      */
     private void unmark(String arguments) {
-        Integer taskNumber = parseTaskNumber(arguments, UNMARK_USAGE);
+        updateTaskStatus(arguments, false);
+    }
+
+    /**
+     * Validates a task number, updates its status, persists it, and displays feedback.
+     *
+     * @param arguments Task-number text supplied after mark or unmark.
+     * @param isDone Requested completion status.
+     */
+    private void updateTaskStatus(String arguments, boolean isDone) {
+        String usage = isDone ? MARK_USAGE : UNMARK_USAGE;
+        Integer taskNumber = parseTaskNumber(arguments, usage);
         if (taskNumber == null) {
             return;
         }
         Task task = tasks.get(taskNumber);
-        task.markAsNotDone();
+        if (isDone) {
+            task.markAsDone();
+        } else {
+            task.markAsNotDone();
+        }
         saveTasks();
-        ui.showMarkedTask(task, false);
+        ui.showMarkedTask(task, isDone);
     }
 
     /**
@@ -242,22 +247,17 @@ public class Bob {
      * @param arguments Text supplied after the deadline command.
      */
     private void createDeadline(String arguments) {
-        int byIndex = arguments.indexOf(" /by ");
-        if (byIndex <= 0) {
-            ui.showUsage(DEADLINE_USAGE);
-            return;
-        }
-        String description = arguments.substring(0, byIndex).trim();
-        String by = arguments.substring(byIndex + " /by ".length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            ui.showUsage(DEADLINE_USAGE);
-            return;
-        }
+        Deadline deadline;
         try {
-            addTask(new Deadline(description, by));
+            deadline = parser.parseDeadline(arguments);
         } catch (DateTimeParseException exception) {
             ui.showInvalidDateTime();
+            return;
+        } catch (IllegalArgumentException exception) {
+            ui.showUsage(DEADLINE_USAGE);
+            return;
         }
+        addTask(deadline);
     }
 
     /**

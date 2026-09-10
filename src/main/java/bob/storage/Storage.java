@@ -106,32 +106,39 @@ public class Storage {
             throw new IllegalArgumentException("Not enough fields");
         }
 
-        Task task;
+        Task task = createTaskFromFields(fields);
+        if (parseDoneStatus(fields[1])) {
+            task.markAsDone();
+        }
+        return task;
+    }
+
+    /**
+     * Creates an incomplete task using the type-specific fields of a saved record.
+     *
+     * @param fields Record fields with at least the type, status, and description present.
+     * @return Task constructed from the validated type-specific fields.
+     * @throws IllegalArgumentException If the type or record structure is invalid.
+     * @throws DateTimeParseException If a date or date-time field is invalid.
+     */
+    private Task createTaskFromFields(String[] fields) {
         switch (fields[0]) {
             case "T":
                 requireFieldCount(fields, 3);
-                task = new Todo(fields[2]);
-                break;
+                return new Todo(fields[2]);
             case "D":
                 requireFieldCount(fields, 4);
-                task = new Deadline(fields[2], fields[3]);
-                break;
+                return new Deadline(fields[2], fields[3]);
             case "E":
                 requireFieldCount(fields, 4);
                 String[] times = fields[3].split(EVENT_TIME_SEPARATOR, 2);
                 if (times.length != 2) {
                     throw new IllegalArgumentException("Invalid event period");
                 }
-                task = new Event(fields[2], times[0], times[1]);
-                break;
+                return new Event(fields[2], times[0], times[1]);
             default:
                 throw new IllegalArgumentException("Unknown task type");
         }
-
-        if (parseDoneStatus(fields[1])) {
-            task.markAsDone();
-        }
-        return task;
     }
 
     /**

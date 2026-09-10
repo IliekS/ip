@@ -1,12 +1,38 @@
 package bob.parser;
 
+import java.time.format.DateTimeParseException;
+
 import bob.command.Command;
 import bob.command.ParsedCommand;
+import bob.task.Deadline;
 
 /**
  * Parses raw user input into commands and arguments.
  */
 public class Parser {
+    private static final String DEADLINE_SEPARATOR = " /by ";
+
+    /**
+     * Parses deadline arguments into a task without saving it.
+     *
+     * @param arguments Text following the deadline command word.
+     * @return Deadline containing the parsed description and date or date-time.
+     * @throws IllegalArgumentException If the separator or either argument is missing.
+     * @throws DateTimeParseException If the deadline date or date-time is invalid.
+     */
+    public Deadline parseDeadline(String arguments) {
+        int byIndex = arguments.indexOf(DEADLINE_SEPARATOR);
+        if (byIndex <= 0) {
+            throw new IllegalArgumentException("Missing deadline description or /by separator");
+        }
+        String description = arguments.substring(0, byIndex).trim();
+        String by = arguments.substring(byIndex + DEADLINE_SEPARATOR.length()).trim();
+        if (description.isEmpty() || by.isEmpty()) {
+            throw new IllegalArgumentException("Deadline description and date must not be empty");
+        }
+        return new Deadline(description, by);
+    }
+
     /**
      * Separates the first command word from its remaining arguments.
      *
