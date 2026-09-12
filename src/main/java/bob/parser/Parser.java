@@ -52,7 +52,7 @@ public class Parser {
     }
 
     /**
-     * Converts a command word into a supported command type.
+     * Converts a full command word or short alias into a supported command type.
      *
      * @param commandWord First word of the user's input.
      * @return The matching command, or UNKNOWN when no command matches.
@@ -61,23 +61,23 @@ public class Parser {
         // parse() handles blank input before extracting the first word.
         assert commandWord != null && !commandWord.isEmpty() : "Command word must already be extracted";
         switch (commandWord) {
-            case "bye":
+            case "bye", "b":
                 return Command.BYE;
-            case "list":
+            case "list", "l":
                 return Command.LIST;
-            case "find":
+            case "find", "f":
                 return Command.FIND;
-            case "mark":
+            case "mark", "m":
                 return Command.MARK;
-            case "unmark":
+            case "unmark", "u":
                 return Command.UNMARK;
-            case "delete":
+            case "delete", "del":
                 return Command.DELETE;
-            case "todo":
+            case "todo", "t":
                 return Command.TODO;
-            case "deadline":
+            case "deadline", "d":
                 return Command.DEADLINE;
-            case "event":
+            case "event", "e":
                 return Command.EVENT;
             default:
                 return Command.UNKNOWN;

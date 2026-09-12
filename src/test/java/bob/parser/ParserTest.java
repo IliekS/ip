@@ -59,6 +59,41 @@ public class ParserTest {
     }
 
     @Test
+    public void parse_shortAliases_returnsMatchingCommandsAndArguments() {
+        String[][] commandPairs = {
+            {"b", "bye"},
+            {"l", "list"},
+            {"f BOOK", "find BOOK"},
+            {"m 1", "mark 1"},
+            {"u 1", "unmark 1"},
+            {"del 1", "delete 1"},
+            {"  t\t read   a book  ", "todo read   a book"},
+            {"d return book /by 2/12/2019", "deadline return book /by 2/12/2019"},
+            {"e meeting /from 2/12/2019 /to 3/12/2019", "event meeting /from 2/12/2019 /to 3/12/2019"}
+        };
+        for (String[] pair : commandPairs) {
+            ParsedCommand expected = parser.parse(pair[1]);
+            ParsedCommand actual = parser.parse(pair[0]);
+            assertEquals(expected.getCommand(), actual.getCommand(), pair[0]);
+            assertEquals(expected.getArguments(), actual.getArguments(), pair[0]);
+        }
+    }
+
+    @Test
+    public void parse_bareAliases_preservesMissingArguments() {
+        for (String alias : new String[] {"t", "d", "e", "m", "u", "del", "f"}) {
+            assertEquals("", parser.parse(alias).getArguments(), alias);
+        }
+    }
+
+    @Test
+    public void parse_unsupportedAliasVariants_returnsUnknownCommand() {
+        for (String input : new String[] {"T read", "M 1", "DEL 1", "td read", "de 1", "tm read"}) {
+            assertEquals(Command.UNKNOWN, parser.parse(input).getCommand(), input);
+        }
+    }
+
+    @Test
     public void parse_commandWithArguments_returnsArgumentsWithoutOuterWhitespace() {
         ParsedCommand result = parser.parse("  todo    read   a book  ");
 

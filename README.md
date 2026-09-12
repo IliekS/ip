@@ -2,6 +2,23 @@
 
 This is a project template for a greenfield Java project. It's named after the Java mascot _Duke_. Given below are instructions on how to use it.
 
+## Command aliases
+
+Bob accepts the following lowercase aliases wherever a command keyword is used.
+Full command names still work, and aliases take the same arguments.
+
+| Command | Alias | Example |
+| --- | --- | --- |
+| `todo` | `t` | `t read book` |
+| `deadline` | `d` | `d return book /by 2/12/2019` |
+| `event` | `e` | `e meeting /from 2/12/2019 1400 /to 2/12/2019 1600` |
+| `list` | `l` | `l` |
+| `find` | `f` | `f book` |
+| `mark` | `m` | `m 1` |
+| `unmark` | `u` | `u 1` |
+| `delete` | `del` | `del 1` |
+| `bye` | `b` | `b` |
+
 ## Setting up in Intellij
 
 Prerequisites: JDK 25, update Intellij to the most recent version.
