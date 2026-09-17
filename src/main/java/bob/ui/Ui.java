@@ -1,7 +1,7 @@
 package bob.ui;
 
-import java.util.Scanner;
 import java.io.PrintStream;
+import java.util.Scanner;
 
 import bob.task.Task;
 import bob.task.TaskList;
@@ -17,6 +17,7 @@ public class Ui {
 
     private final Scanner scanner;
     private final PrintStream output;
+    private boolean hasError;
 
     /**
      * Creates a UI that reads from standard input.
@@ -25,10 +26,26 @@ public class Ui {
         this(new Scanner(System.in), System.out);
     }
 
-    /** Creates a UI using the supplied input and output streams. */
+    /**
+     * Creates a UI using the supplied input and output streams.
+     */
     public Ui(Scanner scanner, PrintStream output) {
         this.scanner = scanner;
         this.output = output;
+    }
+
+    /**
+     * Returns whether an error has been displayed since the last reset.
+     */
+    public boolean hasError() {
+        return hasError;
+    }
+
+    /**
+     * Clears the error status before a new response is generated.
+     */
+    public void resetError() {
+        hasError = false;
     }
 
     /**
@@ -86,6 +103,7 @@ public class Ui {
      * @param format Command format to display.
      */
     public void showUsage(String format) {
+        hasError = true;
         output.println(BLUE + "Invalid command format. Use: " + format + RESET);
     }
 
@@ -93,6 +111,7 @@ public class Ui {
      * Displays a message for an unrecognized command.
      */
     public void showUnknownCommand() {
+        hasError = true;
         output.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
     }
 
@@ -166,6 +185,7 @@ public class Ui {
      * Displays a message for a task number outside the current list.
      */
     public void showInvalidTaskNumber() {
+        hasError = true;
         output.println(BLUE + "Invalid task number." + RESET);
     }
 
@@ -173,6 +193,7 @@ public class Ui {
      * Displays a message for a task number that is not an integer.
      */
     public void showInvalidTaskNumberFormat() {
+        hasError = true;
         output.println(BLUE + "Invalid task number format." + RESET);
     }
 
@@ -180,6 +201,7 @@ public class Ui {
      * Displays the accepted date and date-time input formats.
      */
     public void showInvalidDateTime() {
+        hasError = true;
         output.println(BLUE + "Invalid date or time. Use dd/MM/yyyy or "
                 + "dd/MM/yyyy HHmm with a 24-hour time." + RESET);
     }
@@ -188,6 +210,7 @@ public class Ui {
      * Reports that saved tasks could not be loaded.
      */
     public void showLoadingError() {
+        hasError = true;
         output.println("Warning: could not load tasks from the data file.");
     }
 
@@ -195,6 +218,7 @@ public class Ui {
      * Reports that tasks could not be saved.
      */
     public void showSavingError() {
+        hasError = true;
         output.println("Warning: could not save tasks to the data file.");
     }
 }

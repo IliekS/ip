@@ -7,6 +7,19 @@
 - ANSI colour codes are removed before comparison, so expected outputs contain plain text.
 - Each test case starts a fresh Bob session. End every input block with `bye`.
 
+## Manual GUI background check
+
+Also enter `todo`, `mark 0`, `mark abc`, `deadline test /by 31/02/2026`,
+and an unknown command. Verify that Bob's error replies are italic while user
+messages are not. Then enter `list` and verify that the normal reply is not italic.
+
+Launch the chatbot with `./gradlew run` using Java 25. Check that
+`src/main/resources/images/background.jpg` appears behind the chat messages.
+Resize the window and verify that the image stays centered, fills the window,
+and preserves its proportions without tiling. Send enough messages to scroll
+and check that the background stays fixed and the messages and input remain readable.
+This visual check is separate from the automated console cases below.
+
 ## Test case: Create, update, and list all task types
 Aim: Verify that Bob creates to-do, deadline, and event tasks, updates a task's completion status, and lists their formatted details.
 

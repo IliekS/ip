@@ -14,41 +14,52 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 
-/** Controls Bob's main chat window. */
+/**
+ * Controls Bob's main chat window.
+ */
 public class MainWindow extends AnchorPane {
     @FXML private ScrollPane scrollPane;
     @FXML private VBox dialogContainer;
     @FXML private TextField userInput;
 
     private final ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
-    private final Bob bob = new Bob(new Ui(new Scanner(""), new PrintStream(responseBuffer)),
-            Storage.createDefaultStorage());
-    private final Image userImage = new Image(getClass().getResourceAsStream("/images/DaUser.png"));
-    private final Image bobImage = new Image(getClass().getResourceAsStream("/images/DaDuke.png"));
+    private final Ui ui = new Ui(new Scanner(""), new PrintStream(responseBuffer));
+    private final Bob bob = new Bob(ui, Storage.createDefaultStorage());
+    private final Image userImage = new Image(getClass().getResourceAsStream("/images/User.png"));
+    private final Image bobImage = new Image(getClass().getResourceAsStream("/images/Bob.png"));
 
+    /**
+     * Sets up automatic scrolling and displays Bob's welcome message.
+     */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
         responseBuffer.reset();
-        new Ui(new Scanner(""), new PrintStream(responseBuffer)).showWelcome();
+        ui.resetError();
+        ui.showWelcome();
         dialogContainer.getChildren().add(DialogBox.getBobDialog(cleanOutput(), bobImage));
     }
 
-    /** Processes the entered command and displays Bob's response. */
+    /**
+     * Processes the entered command and displays Bob's response.
+     */
     @FXML
     private void handleUserInput() {
         String input = userInput.getText();
         responseBuffer.reset();
+        ui.resetError();
         boolean shouldExit = bob.respond(input);
         dialogContainer.getChildren().addAll(DialogBox.getUserDialog(input, userImage),
-                DialogBox.getBobDialog(cleanOutput(), bobImage));
+                DialogBox.getBobDialog(cleanOutput(), bobImage, ui.hasError()));
         userInput.clear();
         if (shouldExit) {
             userInput.setDisable(true);
         }
     }
 
-    /** Removes ANSI terminal colour codes before console output is shown in the GUI. */
+    /**
+     * Removes ANSI terminal color codes before console output is shown in the GUI.
+     */
     private String cleanOutput() {
         return responseBuffer.toString(StandardCharsets.UTF_8).replaceAll("\\u001B\\[[;\\d]*m", "");
     }

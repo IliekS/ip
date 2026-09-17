@@ -4,3 +4,4 @@
     -fx-border-radius: 1em;
 }
 .reply-label { -fx-background-color: #d7ebff; }
+.error-label { -fx-font-style: italic; }
