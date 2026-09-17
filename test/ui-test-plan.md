@@ -21,6 +21,13 @@ and preserves its proportions without tiling. Send enough messages to scroll
 and check that the background stays fixed and the messages and input remain readable.
 This visual check is separate from the automated console cases below.
 
+## Manual GUI exit check
+
+Launch Bob, add a task, and enter `bye` using Enter. Verify that the window
+closes and the application process ends. Relaunch and use `list` to confirm the
+task was saved. Repeat using `b` and the Send button. Enter `bye now` and `b now`
+in a fresh session and verify that an error appears and the window stays open.
+
 ## Test case: Create, update, and list all task types
 Aim: Verify that Bob creates to-do, deadline, and event tasks, updates a task's completion status, and lists their formatted details.
 

@@ -7,6 +7,7 @@ import java.util.Scanner;
 
 import bob.Bob;
 import bob.storage.Storage;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
@@ -53,7 +54,7 @@ public class MainWindow extends AnchorPane {
                 DialogBox.getBobDialog(cleanOutput(), bobImage, ui.hasError()));
         userInput.clear();
         if (shouldExit) {
-            userInput.setDisable(true);
+            Platform.exit();
         }
     }
 

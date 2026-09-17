@@ -44,6 +44,21 @@ public class BobTest {
         assertTrue(bob.respond("bye"));
     }
 
+    @Test
+    public void respond_exitCommands_requestsExitOnlyWithoutArguments() {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Bob bob = createBob(output);
+
+        for (String command : new String[] {"bye", "b"}) {
+            output.reset();
+            assertFalse(bob.respond(command + " now"));
+            assertTrue(output.toString(StandardCharsets.UTF_8).contains("I don't understand that command"));
+            output.reset();
+            assertTrue(bob.respond(command));
+            assertTrue(output.toString(StandardCharsets.UTF_8).contains("Bye. Hope to see you again soon!"));
+        }
+    }
+
     /**
      * Creates an isolated chatbot with captured output and temporary storage.
      */
