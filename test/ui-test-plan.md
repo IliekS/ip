@@ -13,7 +13,8 @@ Also enter `todo`, `mark 0`, `mark abc`, `deadline test /by 31/02/2026`,
 and an unknown command. Verify that Bob's error replies are italic while user
 messages are not. Then enter `list` and verify that the normal reply is not italic.
 
-Launch the chatbot with `./gradlew run` using Java 25. Check that
+Launch the chatbot with `./gradlew run` using Java 25. Check that the window
+title is `Bob`. Check that
 `src/main/resources/images/background.jpg` appears behind the chat messages.
 Resize the window and verify that the image stays centered, fills the window,
 and preserves its proportions without tiling. Send enough messages to scroll
