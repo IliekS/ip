@@ -94,7 +94,7 @@ public class BobWorkflowTest {
                 + "dd/MM/yyyy HHmm with a 24-hour time.\n";
 
         for (String command : new String[] {"", "   ", "nonsense"}) {
-            assertEquals("I'm sorry, I don't understand that command.\n", respond(bob, command));
+            assertEquals("sorry bro, that aint a command\n", respond(bob, command));
             assertEquals(originalData, Files.readString(temporaryDirectory.resolve("bob.txt")));
         }
         for (String command : new String[] {"deadline invalid /by 31/02/2019",
@@ -133,6 +133,8 @@ public class BobWorkflowTest {
 
         bob.run();
 
+        assertTrue(plainOutput().startsWith("hi im bob\n"
+                + "____________________________________________________________\n"));
         assertTrue(plainOutput().contains("Bye. Hope to see you again soon!"));
         assertFalse(plainOutput().contains("ignored"));
         assertEquals("Here are the tasks in your list:\n1.[T][ ] saved\n", respond(createBob(), "list"));

@@ -21,12 +21,42 @@ and preserves its proportions without tiling. Send enough messages to scroll
 and check that the background stays fixed and the messages and input remain readable.
 This visual check is separate from the automated console cases below.
 
+Verify that Send is blue with white text, user bubbles are pale blue, and Bob's
+bubbles are white. Both speakers should use dark 16px text and avatars fitting
+within 40 by 40 pixels. Check that bubbles have 12px vertical and 16px horizontal
+padding, and that long replies wrap without clipping at the default window size.
+Verify that the greeting, error replies, and task lists have no empty line after
+their final text line. Task lists should retain the line breaks between tasks.
+
 ## Manual GUI exit check
 
 Launch Bob, add a task, and enter `bye` using Enter. Verify that the window
 closes and the application process ends. Relaunch and use `list` to confirm the
 task was saved. Repeat using `b` and the Send button. Enter `bye now` and `b now`
 in a fresh session and verify that an error appears and the window stays open.
+
+## Test case: Greeting and unknown command
+Aim: Verify the greeting and unknown-command reply use Bob's updated wording.
+
+Input:
+```text
+nonsense
+bye
+```
+
+Expected output:
+```text
+hi im bob
+____________________________________________________________
+
+sorry bro, that aint a command
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
 
 ## Test case: Create, update, and list all task types
 Aim: Verify that Bob creates to-do, deadline, and event tasks, updates a task's completion status, and lists their formatted details.
@@ -44,8 +74,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Got it. I've added this task:
@@ -109,8 +138,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Invalid command format. Use: todo <description>
@@ -169,8 +197,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Got it. I've added this task:
@@ -260,8 +287,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Invalid command format. Use: deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>
@@ -310,8 +336,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Got it. I've added this task:
@@ -391,8 +416,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Got it. I've added this task:
@@ -457,8 +481,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Invalid command format. Use: todo <description>
@@ -518,8 +541,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Got it. I've added this task:
@@ -610,8 +632,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Invalid command format. Use: deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>
@@ -661,8 +682,7 @@ bye
 
 Expected output:
 ```text
-Hello! I'm Bob.
-What can I do for you?
+hi im bob
 ____________________________________________________________
 
 Got it. I've added this task:

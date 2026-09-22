@@ -30,7 +30,7 @@ public class BobTest {
         for (String command : new String[] {"nonsense", "", "   "}) {
             output.reset();
             assertFalse(bob.respond(command));
-            assertTrue(output.toString(StandardCharsets.UTF_8).contains("I don't understand that command"));
+            assertTrue(output.toString(StandardCharsets.UTF_8).contains("sorry bro, that aint a command"));
         }
     }
 
@@ -52,7 +52,7 @@ public class BobTest {
         for (String command : new String[] {"bye", "b"}) {
             output.reset();
             assertFalse(bob.respond(command + " now"));
-            assertTrue(output.toString(StandardCharsets.UTF_8).contains("I don't understand that command"));
+            assertTrue(output.toString(StandardCharsets.UTF_8).contains("sorry bro, that aint a command"));
             output.reset();
             assertTrue(bob.respond(command));
             assertTrue(output.toString(StandardCharsets.UTF_8).contains("Bye. Hope to see you again soon!"));

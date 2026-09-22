@@ -9,9 +9,9 @@
     <children>
         <Label fx:id="dialog" wrapText="true">
             <HBox.margin><Insets left="7.0" right="7.0" /></HBox.margin>
-            <padding><Insets bottom="6.0" left="6.0" right="6.0" top="6.0" /></padding>
+            <padding><Insets bottom="12.0" left="16.0" right="16.0" top="12.0" /></padding>
         </Label>
-        <ImageView fx:id="displayPicture" fitHeight="70.0" fitWidth="70.0" preserveRatio="true" />
+        <ImageView fx:id="displayPicture" fitHeight="40.0" fitWidth="40.0" preserveRatio="true" />
     </children>
     <padding><Insets bottom="15.0" left="5.0" right="5.0" top="15.0" /></padding>
 </fx:root>

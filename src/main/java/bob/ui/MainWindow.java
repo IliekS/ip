@@ -62,6 +62,13 @@ public class MainWindow extends AnchorPane {
      * Removes ANSI terminal color codes before console output is shown in the GUI.
      */
     private String cleanOutput() {
-        return responseBuffer.toString(StandardCharsets.UTF_8).replaceAll("\\u001B\\[[;\\d]*m", "");
+        return cleanOutput(responseBuffer.toString(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * Removes terminal colors and trailing whitespace while preserving lines within a GUI reply.
+     */
+    static String cleanOutput(String output) {
+        return output.replaceAll("\\u001B\\[[;\\d]*m", "").stripTrailing();
     }
 }

@@ -52,8 +52,7 @@ public class Ui {
      * Displays Bob's welcome banner and greeting.
      */
     public void showWelcome() {
-        output.println(BLUE + "Hello! I'm Bob.");
-        output.println("What can I do for you?" + RESET);
+        output.println(BLUE + "hi im bob" + RESET);
     }
 
     /**
@@ -112,7 +111,7 @@ public class Ui {
      */
     public void showUnknownCommand() {
         hasError = true;
-        output.println(BLUE + "I'm sorry, I don't understand that command." + RESET);
+        output.println(BLUE + "sorry bro, that aint a command" + RESET);
     }
 
     /**
