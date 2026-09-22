@@ -27,6 +27,34 @@ public class BobWorkflowTest {
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     @Test
+    public void respond_invalidTaskDetails_preservesSavedTasksAndRecovers() throws IOException {
+        Bob bob = createBob();
+        bob.respond("todo existing");
+        String original = Files.readString(temporaryDirectory.resolve("bob.txt"));
+        String[] commands = {"todo EXISTING", "todo broken | record", "todo broken\nrecord",
+            "event meeting /from 3/12/2019 /to 2/12/2019", "mark +1", "mark 1\t2",
+            "deadline read /by 2/12/2019 /by 3/12/2019"};
+        for (String command : commands) {
+            String reply = respond(bob, command);
+            assertFalse(reply.isBlank());
+            assertFalse(reply.contains("I've added"));
+            assertEquals(original, Files.readString(temporaryDirectory.resolve("bob.txt")));
+        }
+        assertTrue(respond(bob, "  deadline  return book\t/by\t2/12/2019   1800  ").contains("I've added"));
+        assertTrue(respond(bob, "list").contains("return book (by: Dec 02 2019 1800hrs)"));
+    }
+
+    @Test
+    public void constructor_corruptRecords_displaysRecoveryWarning() throws IOException {
+        Files.writeString(temporaryDirectory.resolve("bob.txt"), "bad record\nT | 0 | kept\n");
+
+        Bob bob = createBob();
+
+        assertTrue(plainOutput().contains("skipped 1 invalid or duplicate saved task(s)"));
+        assertTrue(respond(bob, "list").contains("kept"));
+    }
+
+    @Test
     public void respond_restart_restoresAllTaskTypesAndCompletionStatus() {
         Bob bob = createBob();
         bob.respond("todo read book");

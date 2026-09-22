@@ -1,5 +1,7 @@
 package bob.task;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.TemporalAccessor;
 
 import bob.parser.DateTimeParser;
@@ -22,6 +24,17 @@ public class Event extends Task {
         super(description);
         this.from = DateTimeParser.parse(from);
         this.to = DateTimeParser.parse(to);
+        if (!asDateTime(this.from).isBefore(asDateTime(this.to))) {
+            throw new InvalidTaskException(
+                    "Event start must be before its end (dates without times use midnight).");
+        }
+    }
+
+    /**
+     * Converts a date-only endpoint to midnight for comparison with timed endpoints.
+     */
+    private LocalDateTime asDateTime(TemporalAccessor value) {
+        return value instanceof LocalDateTime dateTime ? dateTime : ((LocalDate) value).atStartOfDay();
     }
 
     /**

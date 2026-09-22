@@ -1,16 +1,19 @@
 package bob.parser;
 
 import java.time.format.DateTimeParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import bob.command.Command;
 import bob.command.ParsedCommand;
 import bob.task.Deadline;
+import bob.task.Event;
 
 /**
  * Parses raw user input into commands and arguments.
  */
 public class Parser {
-    private static final String DEADLINE_SEPARATOR = " /by ";
+    private static final Pattern PARAMETER = Pattern.compile("(?U)(?<!\\S)/([A-Za-z]+)(?=\\s|$)");
 
     /**
      * Parses deadline arguments into a task without saving it.
@@ -21,16 +24,43 @@ public class Parser {
      * @throws DateTimeParseException If the deadline date or date-time is invalid.
      */
     public Deadline parseDeadline(String arguments) {
-        int byIndex = arguments.indexOf(DEADLINE_SEPARATOR);
-        if (byIndex <= 0) {
-            throw new IllegalArgumentException("Missing deadline description or /by separator");
+        String[] fields = parseFields(arguments, "by");
+        return new Deadline(fields[0], fields[1]);
+    }
+
+    /**
+     * Parses an event with exactly one /from parameter followed by one /to parameter.
+     */
+    public Event parseEvent(String arguments) {
+        String[] fields = parseFields(arguments, "from", "to");
+        return new Event(fields[0], fields[1], fields[2]);
+    }
+
+    /**
+     * Extracts a description and required parameters, rejecting missing, repeated, or unexpected flags.
+     */
+    private String[] parseFields(String arguments, String... parameters) {
+        Matcher matcher = PARAMETER.matcher(arguments);
+        String[] fields = new String[parameters.length + 1];
+        int fieldIndex = 0;
+        int start = 0;
+        while (matcher.find()) {
+            if (fieldIndex >= parameters.length || !matcher.group(1).equals(parameters[fieldIndex])) {
+                throw new IllegalArgumentException("Unexpected or repeated parameter");
+            }
+            fields[fieldIndex++] = arguments.substring(start, matcher.start()).strip();
+            start = matcher.end();
         }
-        String description = arguments.substring(0, byIndex).trim();
-        String by = arguments.substring(byIndex + DEADLINE_SEPARATOR.length()).trim();
-        if (description.isEmpty() || by.isEmpty()) {
-            throw new IllegalArgumentException("Deadline description and date must not be empty");
+        if (fieldIndex != parameters.length) {
+            throw new IllegalArgumentException("Missing parameter");
         }
-        return new Deadline(description, by);
+        fields[fieldIndex] = arguments.substring(start).strip();
+        for (String field : fields) {
+            if (field.isEmpty()) {
+                throw new IllegalArgumentException("Missing parameter value or description");
+            }
+        }
+        return fields;
     }
 
     /**
@@ -40,12 +70,12 @@ public class Parser {
      * @return The parsed command and arguments.
      */
     public ParsedCommand parse(String input) {
-        String trimmedInput = input.trim();
+        String trimmedInput = input == null ? "" : input.strip();
         if (trimmedInput.isEmpty()) {
             return new ParsedCommand(Command.UNKNOWN, "");
         }
 
-        String[] parts = trimmedInput.split("\\s+", 2);
+        String[] parts = trimmedInput.split("(?U)\\s+", 2);
         Command command = parseCommandWord(parts[0]);
         String arguments = parts.length == 2 ? parts[1].trim() : "";
         return new ParsedCommand(command, arguments);

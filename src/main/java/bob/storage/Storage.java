@@ -3,7 +3,9 @@ package bob.storage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,13 @@ public class Storage {
     private static final String EVENT_TIME_SEPARATOR = " to ";
 
     private final Path filePath;
+    private int skippedLineCount;
+    private boolean hasLoadFailure;
+    private boolean needsRecoveryBackup;
+
+    public int getSkippedLineCount() {
+        return skippedLineCount;
+    }
 
     /**
      * Creates storage that uses a path relative to the application's working directory.
@@ -58,39 +67,67 @@ public class Storage {
      */
     public ArrayList<Task> load() throws IOException {
         ArrayList<Task> loadedTasks = new ArrayList<>();
-        if (!Files.exists(filePath)) {
+        skippedLineCount = 0;
+        List<String> lines;
+        try {
+            lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+            hasLoadFailure = false;
+        } catch (NoSuchFileException exception) {
+            hasLoadFailure = false;
             return loadedTasks;
+        } catch (IOException | SecurityException exception) {
+            hasLoadFailure = true;
+            throw exception;
         }
 
-        List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
             try {
-                loadedTasks.add(parseTask(line));
+                Task task = parseTask(line);
+                if (loadedTasks.stream().anyMatch(existing -> existing.hasSameDetails(task))) {
+                    throw new IllegalArgumentException("Duplicate saved task");
+                }
+                loadedTasks.add(task);
             } catch (IllegalArgumentException | DateTimeParseException exception) {
-                System.err.println("Warning: skipped invalid data on line " + (i + 1) + ".");
+                skippedLineCount++;
             }
         }
+        needsRecoveryBackup = skippedLineCount > 0;
         return loadedTasks;
     }
 
     /**
-     * Saves all tasks, creating the data directory when necessary.
+     * Saves through an atomic replacement, creating the data directory when necessary.
+     * Backs up malformed input before replacement and refuses to overwrite unreadable input.
      *
      * @param tasks Tasks to save.
      * @throws IOException If the data file cannot be written.
      */
     public void save(List<Task> tasks) throws IOException {
-        Path parentDirectory = filePath.getParent();
-        if (parentDirectory != null) {
-            Files.createDirectories(parentDirectory);
+        if (hasLoadFailure && !Files.notExists(filePath)) {
+            throw new IOException("Refusing to overwrite a file that could not be loaded");
         }
-
         ArrayList<String> lines = new ArrayList<>();
         for (Task task : tasks) {
             lines.add(formatTask(task));
         }
-        Files.write(filePath, lines, StandardCharsets.UTF_8);
+        Path destination = filePath.toAbsolutePath();
+        Path parentDirectory = destination.getParent();
+        Files.createDirectories(parentDirectory);
+        if (needsRecoveryBackup && Files.exists(destination)) {
+            Path backup = Files.createTempFile(parentDirectory, "bob-recovery-", ".bak");
+            Files.copy(destination, backup, StandardCopyOption.REPLACE_EXISTING);
+            needsRecoveryBackup = false;
+        }
+        Path temporaryFile = Files.createTempFile(parentDirectory, "bob-save-", ".tmp");
+        try {
+            Files.write(temporaryFile, lines, StandardCharsets.UTF_8);
+            Files.move(temporaryFile, destination,
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            hasLoadFailure = false;
+        } finally {
+            Files.deleteIfExists(temporaryFile);
+        }
     }
 
     /**
@@ -192,7 +229,7 @@ public class Storage {
             throw new IllegalArgumentException("Incorrect number of fields");
         }
         for (String field : fields) {
-            if (field.isEmpty()) {
+            if (field.isBlank()) {
                 throw new IllegalArgumentException("Empty field");
             }
         }

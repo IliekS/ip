@@ -220,4 +220,12 @@ public class Ui {
         hasError = true;
         output.println("Warning: could not save tasks to the data file.");
     }
+
+    /**
+     * Displays validation or recovery feedback and marks the reply as an error.
+     */
+    public void showError(String message) {
+        hasError = true;
+        output.println(BLUE + message + RESET);
+    }
 }

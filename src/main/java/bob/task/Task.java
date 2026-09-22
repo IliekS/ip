@@ -16,7 +16,12 @@ public abstract class Task {
      * @param description The task description.
      */
     public Task(String description) {
-        this.description = description;
+        if (description == null || description.isBlank() || description.contains("|")
+                || description.codePoints().anyMatch(value -> Character.isISOControl(value) && value != '\t')) {
+            throw new InvalidTaskException(
+                    "Descriptions must be non-empty and cannot contain | or control characters.");
+        }
+        this.description = description.strip();
         this.isDone = false;
     }
 
@@ -50,6 +55,25 @@ public abstract class Task {
      */
     public String getDescription() {
         return description;
+    }
+
+    /**
+     * Compares task type, normalized description, and dates, ignoring completion status.
+     * Description matching ignores letter case and repeated whitespace.
+     */
+    public boolean hasSameDetails(Task other) {
+        if (getClass() != other.getClass()
+                || !description.replaceAll("(?U)\\s+", " ")
+                        .equalsIgnoreCase(other.description.replaceAll("(?U)\\s+", " "))) {
+            return false;
+        }
+        if (this instanceof Deadline deadline && other instanceof Deadline otherDeadline) {
+            return deadline.getBy().equals(otherDeadline.getBy());
+        }
+        if (this instanceof Event event && other instanceof Event otherEvent) {
+            return event.getFrom().equals(otherEvent.getFrom()) && event.getTo().equals(otherEvent.getTo());
+        }
+        return true;
     }
 
     /**

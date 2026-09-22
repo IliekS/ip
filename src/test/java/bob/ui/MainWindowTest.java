@@ -1,6 +1,7 @@
 package bob.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,6 +9,11 @@ import org.junit.jupiter.api.Test;
  * Verifies console responses are formatted for chat bubbles.
  */
 public class MainWindowTest {
+    @Test
+    public void loadImage_missingAvatar_returnsBlankAvatar() {
+        assertNull(MainWindow.loadImage("/images/missing-avatar.png"));
+    }
+
     @Test
     public void cleanOutput_coloredGreeting_removesColorsAndTrailingNewline() {
         assertEquals("hi im bob", MainWindow.cleanOutput("\u001B[34mhi im bob\u001B[0m\r\n"));

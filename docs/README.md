@@ -47,8 +47,13 @@ Starting with an empty task list, this adds two tasks, displays both, marks
 - Command names and aliases are **lowercase**: use `list`, not `List`.
 - Replace placeholders such as `<description>` with your own text; do not type
   the angle brackets.
-- Descriptions may contain spaces and must not be empty.
-- Keep spaces around `/by`, `/from`, and `/to`, as shown in the examples.
+- Descriptions may contain spaces and punctuation, but must not be empty or
+  contain `|`, line breaks, or control characters.
+- Extra spaces and tabs around commands, parameters, and times are accepted.
+  Separate `/by`, `/from`, and `/to` from their values with whitespace.
+  Supply each required parameter exactly once, with `/from` before `/to`.
+- Tasks with the same type, description, and dates are duplicates, even if one
+  is completed. Description matching ignores case and repeated whitespace.
 - Task numbers start at **1**. Use the latest `list` output when choosing a task
   to mark, unmark, or delete.
 
@@ -66,6 +71,24 @@ Single-digit days and months are accepted. Times use four digits on a 24-hour cl
 Dates such as `31/02/2026`, times such as `2400`, and natural-language dates such
 as `tomorrow` are not accepted. Bob displays dates as `Dec 02 2026` and times
 as `1800hrs`.
+
+An event must end strictly after it starts. A date without a time is treated
+as midnight when comparing event endpoints. Use explicit times for events
+that start and end on the same day.
+
+### Recovering from file errors
+
+Missing data files start an empty list. If a file contains invalid or duplicate
+records, Bob loads the remaining tasks and shows a warning. Before saving the
+recovered list, Bob preserves the original in a `bob-recovery-*.bak` file beside
+the data file. For duplicate records, the first valid record is retained.
+
+If the data file cannot be read, Bob refuses to overwrite it. Keep the session
+open, back up the file, and resolve its permissions or encoding before restarting.
+Saves use a temporary file and atomic replacement; if the filesystem does not
+support this operation or saving fails, Bob reports the failure and retains
+changes in memory. `bye` retries saving and keeps the session open if it fails.
+Avoid closing the window or terminating the process while changes are unsaved.
 
 ## Adding tasks
 
@@ -231,7 +254,7 @@ it again.
 | Message | What to do |
 | --- | --- |
 | `Invalid command format. Use: ...` | Follow the format shown, including the description and required separators. |
-| `I'm sorry, I don't understand that command.` | Use a lowercase command or alias from the table. `list` and `bye` take no arguments. |
+| `sorry bro, that aint a command` | Use a lowercase command or alias from the table. `list` and `bye` take no arguments. |
 | `Invalid task number.` | Run `list` and choose a number from 1 to the number of tasks shown. |
 | `Invalid task number format.` | Enter a whole number, such as `mark 1`. |
 | `Invalid date or time. Use ...` | Use a real calendar date and, if needed, a four-digit time from `0000` to `2359`. |

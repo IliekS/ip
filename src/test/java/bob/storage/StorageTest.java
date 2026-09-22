@@ -1,5 +1,6 @@
 package bob.storage;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import bob.task.Deadline;
 import bob.task.Event;
@@ -25,6 +27,62 @@ import org.junit.jupiter.api.io.TempDir;
 public class StorageTest {
     @TempDir
     private Path temporaryDirectory;
+
+    @Test
+    public void load_invalidAndDuplicateRecords_backsUpOriginalBeforeSavingRecovery() throws IOException {
+        Path file = temporaryDirectory.resolve("bob.txt");
+        String original = "T | 0 | first\nT | 1 | FIRST\nT | 0 |    \n"
+                + "E | 0 | reversed | 03/12/2019 to 02/12/2019\n";
+        Files.writeString(file, original);
+        Storage storage = createStorage("bob.txt");
+
+        List<Task> tasks = storage.load();
+
+        assertEquals(1, tasks.size());
+        assertEquals(3, storage.getSkippedLineCount());
+        storage.save(tasks);
+        try (Stream<Path> paths = Files.list(temporaryDirectory)) {
+            Path backup = paths.filter(path -> path.toString().endsWith(".bak")).findFirst().orElseThrow();
+            assertEquals(original, Files.readString(backup));
+        }
+        assertEquals(List.of("T | 0 | first"), Files.readAllLines(file));
+    }
+
+    @Test
+    public void load_invalidEncoding_preventsOverwriteOfUnreadableFile() throws IOException {
+        Path file = temporaryDirectory.resolve("bob.txt");
+        byte[] original = {(byte) 0xc3, (byte) 0x28};
+        Files.write(file, original);
+        Storage storage = createStorage("bob.txt");
+
+        assertThrows(IOException.class, storage::load);
+        assertThrows(IOException.class, () -> storage.save(List.of(new Todo("new"))));
+        assertEquals(2, Files.size(file));
+        assertArrayEquals(original, Files.readAllBytes(file));
+    }
+
+    @Test
+    public void save_invalidTask_preservesExistingFile() throws IOException {
+        Storage storage = createStorage("bob.txt");
+        storage.save(List.of(new Todo("original")));
+        Task unsupported = new Task("unsupported") {
+        };
+
+        assertThrows(IllegalArgumentException.class, () -> storage.save(List.of(unsupported)));
+        assertEquals(List.of("T | 0 | original"), Files.readAllLines(temporaryDirectory.resolve("bob.txt")));
+    }
+
+    @Test
+    public void save_destinationIsDirectory_reportsFailureAndCleansTemporaryFile() throws IOException {
+        Files.createDirectory(temporaryDirectory.resolve("bob.txt"));
+        Files.writeString(temporaryDirectory.resolve("bob.txt/keep.txt"), "keep");
+
+        assertThrows(IOException.class, () -> createStorage("bob.txt").save(List.of(new Todo("new"))));
+        try (Stream<Path> paths = Files.list(temporaryDirectory)) {
+            assertEquals(1, paths.count());
+        }
+        assertEquals("keep", Files.readString(temporaryDirectory.resolve("bob.txt/keep.txt")));
+    }
 
     @Test
     public void load_missingFile_returnsEmptyTaskList() throws IOException {

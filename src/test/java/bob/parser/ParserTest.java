@@ -37,10 +37,34 @@ public class ParserTest {
     }
 
     @Test
-    public void parseDeadline_invalidDateOrRepeatedSeparator_throwsDateException() {
+    public void parseDeadline_invalidDate_throwsDateException() {
         for (String input : new String[] {"read /by 31/02/2019", "read /by tomorrow",
-                "read /by 2/12/2019 2500", "read /by 2/12/2019 /by 3/12/2019"}) {
+                "read /by 2/12/2019 2500"}) {
             assertThrows(DateTimeParseException.class, () -> parser.parseDeadline(input), input);
+        }
+    }
+
+    @Test
+    public void parseDeadline_repeatedOrUnexpectedParameter_throwsFormatException() {
+        for (String input : new String[] {"read /by 2/12/2019 /by 3/12/2019",
+            "read /from 2/12/2019 /by 3/12/2019", "read /by 2/12/2019 /until 3/12/2019"}) {
+            assertThrows(IllegalArgumentException.class, () -> parser.parseDeadline(input), input);
+        }
+    }
+
+    @Test
+    public void parseEvent_tabsAndExtraSpaces_parsesDates() {
+        assertEquals(LocalDateTime.of(2019, 12, 2, 14, 0),
+                parser.parseEvent("meeting\t/from\t2/12/2019   1400\t/to  2/12/2019 1600").getFrom());
+    }
+
+    @Test
+    public void parseEvent_missingRepeatedOrReorderedParameters_throwsFormatException() {
+        for (String input : new String[] {"meeting /from 2/12/2019", "meeting /from /to 3/12/2019",
+            "meeting /from 2/12/2019 /from 3/12/2019 /to 4/12/2019",
+            "meeting /from 2/12/2019 /to 3/12/2019 /to 4/12/2019",
+            "meeting /to 3/12/2019 /from 2/12/2019"}) {
+            assertThrows(IllegalArgumentException.class, () -> parser.parseEvent(input), input);
         }
     }
 

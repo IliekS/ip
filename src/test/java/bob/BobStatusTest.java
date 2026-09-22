@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -26,6 +27,48 @@ import org.junit.jupiter.api.io.TempDir;
 public class BobStatusTest {
     @TempDir
     private Path temporaryDirectory;
+
+    @Test
+    public void respond_accessDenied_keepsSessionOpenUntilSaveCanBeRetried() throws IOException {
+        Path file = temporaryDirectory.resolve("bob.txt");
+        Storage storage = new Storage(file.toString()) {
+            private boolean shouldFail = true;
+
+            @Override
+            public void save(List<Task> tasks) throws IOException {
+                if (shouldFail) {
+                    shouldFail = false;
+                    throw new AccessDeniedException(file.toString());
+                }
+                super.save(tasks);
+            }
+        };
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Bob bob = createBob(storage, output);
+
+        assertFalse(bob.respond("todo retained"));
+        assertTrue(plainOutput(output).contains("could not save"));
+        assertTrue(bob.respond("bye"));
+        assertEquals("retained", storage.load().get(0).getDescription());
+    }
+
+    @Test
+    public void respond_persistentSaveFailure_refusesExit() {
+        Storage storage = new Storage(temporaryDirectory.resolve("bob.txt").toString()) {
+            @Override
+            public void save(List<Task> tasks) throws IOException {
+                throw new IOException("Disk full");
+            }
+        };
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        Bob bob = createBob(storage, output);
+        bob.respond("todo retained");
+        output.reset();
+
+        assertFalse(bob.respond("bye"));
+        assertTrue(plainOutput(output).contains("Changes are not saved."));
+        assertFalse(plainOutput(output).contains("Bye."));
+    }
 
     @Test
     public void respond_markAndUnmark_updatesOnlySelectedTaskAndPersists() throws IOException {

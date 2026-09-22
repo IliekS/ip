@@ -42,10 +42,11 @@ public class DateTimeParser {
      * @throws DateTimeParseException If the value is not a valid supported date or date-time.
      */
     public static TemporalAccessor parse(String value) {
+        String normalizedValue = value.strip().replaceAll("(?U)\\s+", " ");
         try {
-            return LocalDate.parse(value, INPUT_DATE_FORMAT);
+            return LocalDate.parse(normalizedValue, INPUT_DATE_FORMAT);
         } catch (DateTimeParseException dateException) {
-            return LocalDateTime.parse(value, INPUT_DATE_TIME_FORMAT);
+            return LocalDateTime.parse(normalizedValue, INPUT_DATE_TIME_FORMAT);
         }
     }
 

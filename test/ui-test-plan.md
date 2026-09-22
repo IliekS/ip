@@ -30,6 +30,15 @@ their final text line. Task lists should retain the line breaks between tasks.
 
 ## Manual GUI exit check
 
+Using a disposable copy of the data file, test unreadable data and invalid saved
+records. Verify that the loading warning appears in its own italic chat bubble,
+followed by a separate `hi im bob` bubble in normal, non-italic text. With valid
+data, verify that only the greeting bubble appears, with no empty warning bubble.
+After a save failure, verify that `bye` reports unsaved changes and keeps the
+window open. Restore file access and retry `bye`; verify the changes persist.
+When invalid records are skipped, verify a `bob-recovery-*.bak` file preserves
+the original contents before the first successful save.
+
 Launch Bob, add a task, and enter `bye` using Enter. Verify that the window
 closes and the application process ends. Relaunch and use `list` to confirm the
 task was saved. Repeat using `b` and the Send button. Enter `bye now` and `b now`
@@ -737,6 +746,125 @@ ____________________________________________________________
 ____________________________________________________________
 
 Invalid command format. Use: find <keyword>
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Test case: Reject invalid details and recover
+Aim: Verify duplicates, unsafe descriptions, repeated parameters, and invalid event ranges do not change the list.
+
+Input:
+```text
+todo read book
+todo READ   book
+todo broken | record
+deadline read /by 2/12/2019 /by 3/12/2019
+event meeting /from 2/12/2019 /to 3/12/2019 /to 4/12/2019
+event meeting /from 3/12/2019 /to 2/12/2019
+event meeting /from 2/12/2019 1400 /to 2/12/2019 1400
+event meeting /from 2/12/2019 1400 /to 2/12/2019
+mark +1
+mark 1	2
+list
+bye
+```
+
+Expected output:
+```text
+hi im bob
+____________________________________________________________
+
+Got it. I've added this task:
+[T][ ] read book
+Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+That task already exists.
+____________________________________________________________
+
+____________________________________________________________
+
+Descriptions must be non-empty and cannot contain | or control characters.
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: deadline <description> /by <dd/MM/yyyy or dd/MM/yyyy HHmm>
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: event <description> /from <dd/MM/yyyy or dd/MM/yyyy HHmm> /to <dd/MM/yyyy or dd/MM/yyyy HHmm>
+____________________________________________________________
+
+____________________________________________________________
+
+Event start must be before its end (dates without times use midnight).
+____________________________________________________________
+
+____________________________________________________________
+
+Event start must be before its end (dates without times use midnight).
+____________________________________________________________
+
+____________________________________________________________
+
+Event start must be before its end (dates without times use midnight).
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid task number format.
+____________________________________________________________
+
+____________________________________________________________
+
+Invalid command format. Use: mark <task_number>
+____________________________________________________________
+
+____________________________________________________________
+
+Here are the tasks in your list:
+1.[T][ ] read book
+____________________________________________________________
+
+____________________________________________________________
+
+Bye. Hope to see you again soon!
+____________________________________________________________
+```
+
+## Test case: Accept flexible whitespace
+Aim: Verify spaces and tabs around commands, parameters, and times are accepted while descriptions retain their text.
+
+Input:
+```text
+  deadline	return book	/by	2/12/2019   1800  
+  event meeting	/from	3/12/2019   1400	/to  3/12/2019 1600  
+bye
+```
+
+Expected output:
+```text
+hi im bob
+____________________________________________________________
+
+Got it. I've added this task:
+[D][ ] return book (by: Dec 02 2019 1800hrs)
+Now you have 1 tasks in the list.
+____________________________________________________________
+
+____________________________________________________________
+
+Got it. I've added this task:
+[E][ ] meeting (from: Dec 03 2019 1400hrs to: Dec 03 2019 1600hrs)
+Now you have 2 tasks in the list.
 ____________________________________________________________
 
 ____________________________________________________________

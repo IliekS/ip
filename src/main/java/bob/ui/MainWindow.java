@@ -2,6 +2,7 @@ package bob.ui;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 
@@ -26,15 +27,31 @@ public class MainWindow extends AnchorPane {
     private final ByteArrayOutputStream responseBuffer = new ByteArrayOutputStream();
     private final Ui ui = new Ui(new Scanner(""), new PrintStream(responseBuffer));
     private final Bob bob = new Bob(ui, Storage.createDefaultStorage());
-    private final Image userImage = new Image(getClass().getResourceAsStream("/images/User.png"));
-    private final Image bobImage = new Image(getClass().getResourceAsStream("/images/Bob.png"));
+    private final Image userImage = loadImage("/images/User.png");
+    private final Image bobImage = loadImage("/images/Bob.png");
 
     /**
-     * Sets up automatic scrolling and displays Bob's welcome message.
+     * Loads an optional avatar, leaving it blank when the resource is missing or unreadable.
+     */
+    static Image loadImage(String path) {
+        URL resource = MainWindow.class.getResource(path);
+        if (resource == null) {
+            return null;
+        }
+        Image image = new Image(resource.toExternalForm());
+        return image.isError() ? null : image;
+    }
+
+    /**
+     * Displays startup warnings separately from Bob's normal welcome message.
      */
     @FXML
     public void initialize() {
         scrollPane.vvalueProperty().bind(dialogContainer.heightProperty());
+        String warning = cleanOutput();
+        if (!warning.isEmpty()) {
+            dialogContainer.getChildren().add(DialogBox.getBobDialog(warning, bobImage, true));
+        }
         responseBuffer.reset();
         ui.resetError();
         ui.showWelcome();

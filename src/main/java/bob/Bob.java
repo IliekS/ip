@@ -8,7 +8,7 @@ import bob.command.ParsedCommand;
 import bob.parser.Parser;
 import bob.storage.Storage;
 import bob.task.Deadline;
-import bob.task.Event;
+import bob.task.InvalidTaskException;
 import bob.task.Task;
 import bob.task.TaskList;
 import bob.task.Todo;
@@ -33,6 +33,7 @@ public class Bob {
     private final Storage storage;
     private final TaskList tasks;
     private final Ui ui;
+    private boolean hasUnsavedChanges;
 
     /**
      * Creates Bob with its UI, parser, task list, and default storage.
@@ -58,8 +59,18 @@ public class Bob {
      * @return True if Bob should exit.
      */
     public boolean respond(String input) {
+        if (input != null && input.codePoints()
+                .anyMatch(value -> Character.isISOControl(value) && value != '\t')) {
+            ui.showError("Commands cannot contain line breaks or control characters.");
+            return false;
+        }
         ParsedCommand parsedCommand = parser.parse(input);
-        return executeCommand(parsedCommand);
+        try {
+            return executeCommand(parsedCommand);
+        } catch (InvalidTaskException exception) {
+            ui.showError(exception.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -78,8 +89,7 @@ public class Bob {
         ui.showWelcome();
         while (ui.hasNextCommand()) {
             ui.showCommandStart();
-            ParsedCommand parsedCommand = parser.parse(ui.readCommand());
-            boolean shouldExit = executeCommand(parsedCommand);
+            boolean shouldExit = respond(ui.readCommand());
             ui.showCommandEnd();
             if (shouldExit) {
                 return;
@@ -140,6 +150,13 @@ public class Bob {
         if (!arguments.isEmpty()) {
             ui.showUnknownCommand();
             return false;
+        }
+        if (hasUnsavedChanges) {
+            saveTasks();
+            if (hasUnsavedChanges) {
+                ui.showError("Changes are not saved. Fix the data file access and try bye again.");
+                return false;
+            }
         }
         ui.showGoodbye();
         return true;
@@ -253,6 +270,8 @@ public class Bob {
         } catch (DateTimeParseException exception) {
             ui.showInvalidDateTime();
             return;
+        } catch (InvalidTaskException exception) {
+            throw exception;
         } catch (IllegalArgumentException exception) {
             ui.showUsage(DEADLINE_USAGE);
             return;
@@ -266,23 +285,14 @@ public class Bob {
      * @param arguments Text supplied after the event command.
      */
     private void createEvent(String arguments) {
-        int fromIndex = arguments.indexOf(" /from ");
-        int toIndex = arguments.indexOf(" /to ");
-        if (fromIndex <= 0 || toIndex < fromIndex) {
-            ui.showUsage(EVENT_USAGE);
-            return;
-        }
-        String description = arguments.substring(0, fromIndex).trim();
-        String from = arguments.substring(fromIndex + " /from ".length(), toIndex).trim();
-        String to = arguments.substring(toIndex + " /to ".length()).trim();
-        if (description.isEmpty() || from.isEmpty() || to.isEmpty()) {
-            ui.showUsage(EVENT_USAGE);
-            return;
-        }
         try {
-            addTask(new Event(description, from, to));
+            addTask(parser.parseEvent(arguments));
         } catch (DateTimeParseException exception) {
             ui.showInvalidDateTime();
+        } catch (InvalidTaskException exception) {
+            throw exception;
+        } catch (IllegalArgumentException exception) {
+            ui.showUsage(EVENT_USAGE);
         }
     }
 
@@ -292,6 +302,10 @@ public class Bob {
      * @param task Task to add.
      */
     private void addTask(Task task) {
+        if (tasks.asList().stream().anyMatch(existing -> existing.hasSameDetails(task))) {
+            ui.showError("That task already exists.");
+            return;
+        }
         tasks.add(task);
         saveTasks();
         ui.showAddedTask(task, tasks.size());
@@ -305,11 +319,14 @@ public class Bob {
      * @return The valid one-based task number, or null when validation fails.
      */
     private Integer parseTaskNumber(String arguments, String usage) {
-        if (arguments.isEmpty() || arguments.contains(" ")) {
+        if (arguments.isEmpty() || arguments.matches("(?sU).*\\s.*")) {
             ui.showUsage(usage);
             return null;
         }
         try {
+            if (!arguments.matches("-?[0-9]+")) {
+                throw new NumberFormatException("Task numbers must contain digits only");
+            }
             int taskNumber = Integer.parseInt(arguments);
             if (!tasks.hasTaskNumber(taskNumber)) {
                 ui.showInvalidTaskNumber();
@@ -329,8 +346,13 @@ public class Bob {
      */
     private TaskList loadTasks() {
         try {
-            return new TaskList(storage.load());
-        } catch (IOException exception) {
+            TaskList loadedTasks = new TaskList(storage.load());
+            if (storage.getSkippedLineCount() > 0) {
+                ui.showError("Warning: skipped " + storage.getSkippedLineCount()
+                        + " invalid or duplicate saved task(s). The original file will be backed up before saving.");
+            }
+            return loadedTasks;
+        } catch (IOException | SecurityException exception) {
             ui.showLoadingError();
             return new TaskList();
         }
@@ -340,9 +362,11 @@ public class Bob {
      * Saves the current task list and reports errors without terminating Bob.
      */
     private void saveTasks() {
+        hasUnsavedChanges = true;
         try {
             storage.save(tasks.asList());
-        } catch (IOException exception) {
+            hasUnsavedChanges = false;
+        } catch (IOException | SecurityException exception) {
             ui.showSavingError();
         }
     }
